@@ -1,0 +1,136 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header, footer {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+nav a {
+    margin: 0 15px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.schedule {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+    height: calc(100vh - 140px); /* Ajustăm înălțimea pentru a exclude header-ul și footer-ul */
+}
+
+.day {
+    background-color: #f9f9f9;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.day h2 {
+    margin: 0;
+    font-size: 1.4em;
+    color: #4CAF50;
+}
+
+.lesson {
+    margin-top: 10px;
+}
+
+.lesson p {
+    margin: 5px 0;
+}
+
+.announcements {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 800px;
+}
+
+.announcement {
+    background-color: #ffffff;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.announcement h2 {
+    margin: 0 0 10px 0;
+    color: #4CAF50;
+}
+
+.announcement .date {
+    margin: 0 0 10px 0;
+    font-size: 0.9em;
+    color: #999999;
+}
+
+.announcement .text {
+    max-height: 150px;
+    overflow-y: auto; /* Permite scroll doar pe verticală */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    white-space: normal; /* Asigură că textul se încadrează în container pe orizontală */
+}
+
+.announcement .text p {
+    margin: 0 0 10px 0;
+}
+
+@media (max-width: 768px) {
+    .day {
+        min-width: 150px;
+    }
+
+    .announcements {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    nav a {
+        display: block;
+        margin: 5px 0;
+    }
+
+    .day {
+        min-width: 100px;
+    }
+}
