@@ -13,9 +13,9 @@
             <a href="manage_teachers.html">Gestionează Profesori</a>
             <a href="manage_students.html">Gestionează Elevi</a>
             <a href="manage_classes.html">Gestionează Grupe</a>
-            <a href="manage_subjects.html">Gestionează Materii</a>
             <a href="manage_schedule.html">Gestionează Orar</a>
-            <a href="/logout">Logout</a>
+            <a href="manage_announcements.html">Gestionează Anunțuri</a>
+            <a href="/login.html">Logout</a>
         </nav>
     </header>
     <main>
@@ -51,7 +51,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Materiile existente vor fi afișate aici -->
+                <!-- Materiile existente vor fi afisate aici -->
                 <tr>
                     <td>Matematică</td>
                     <td>3</td>
@@ -61,7 +61,7 @@
                         <button onclick="deleteSubject(this)">Delete</button>
                     </td>
                 </tr>
-                <!-- Adaugă alte rânduri pentru materii aici -->
+                <!-- Adaugă alte randuri pentru materii aici -->
             </tbody>
         </table>
     </main>
@@ -97,7 +97,7 @@
         }
 
         function deleteSubject(button) {
-            // Logica pentru ștergerea unei materii
+            // Logica pentru stergerea unei materii
             if (confirm('Sigur doriți să ștergeți această materie?')) {
                 const row = button.parentNode.parentNode;
                 row.parentNode.removeChild(row);

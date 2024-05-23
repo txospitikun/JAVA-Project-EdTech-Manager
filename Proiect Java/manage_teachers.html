@@ -14,7 +14,8 @@
             <a href="manage_students.html">Gestionează Elevi</a>
             <a href="manage_classes.html">Gestionează Grupe</a>
             <a href="manage_schedule.html">Gestionează Orar</a>
-            <a href="/logout">Logout</a>
+            <a href="manage_announcements.html">Gestionează Anunțuri</a>
+            <a href="/login.html">Logout</a>
         </nav>
     </header>
     <main>
@@ -30,7 +31,6 @@
                     <option value="Matematica">Matematică</option>
                     <option value="Fizica">Fizică</option>
                     <option value="Informatica">Informatică</option>
-                    <!-- Adaugă alte opțiuni aici -->
                 </select>
             </div>
             <div class="form-group">
@@ -55,7 +55,6 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Profesorii existenți vor fi afișați aici -->
                 <tr>
                     <td>Prof. Popescu</td>
                     <td>Matematică, Fizică</td>
@@ -81,7 +80,6 @@
                 <option value="Matematica">Matematică</option>
                 <option value="Fizica">Fizică</option>
                 <option value="Informatica">Informatică</option>
-                <!-- Adaugă alte opțiuni aici -->
             </select>`;
             const selectedSubjects = cells[1].innerText.split(', ');
             const options = cells[1].querySelectorAll('option');
@@ -108,7 +106,7 @@
         }
 
         function deleteTeacher(button) {
-            // Logica pentru ștergerea unui profesor
+            // Logica pentru stergerea unui profesor
             if (confirm('Sigur doriți să ștergeți acest profesor?')) {
                 const row = button.parentNode.parentNode;
                 row.parentNode.removeChild(row);

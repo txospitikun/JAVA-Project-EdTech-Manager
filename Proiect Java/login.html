@@ -9,7 +9,7 @@
 <body>
     <div class="login-container">
         <h2>Login</h2>
-        <form action="/login" method="post">
+        <form id="login-form">
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
@@ -21,5 +21,26 @@
             <button type="submit">Login</button>
         </form>
     </div>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (password === 'parola123') {
+                if (username === 'admin') {
+                    window.location.href = 'home_admin.html';
+                } else if (username === 'student') {
+                    window.location.href = 'home.html';
+                } else if (username === 'profesor') {
+                    window.location.href = 'home_teacher.html';
+                } else {
+                    alert('Utilizator necunoscut!');
+                }
+            } else {
+                alert('Parola incorectă!');
+            }
+        });
+    </script>
 </body>
 </html>
