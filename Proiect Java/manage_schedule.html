@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Gestionează Orar</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="home_admin.html">Home</a>
+            <a href="manage_teachers.html">Gestionează Profesori</a>
+            <a href="manage_students.html">Gestionează Elevi</a>
+            <a href="manage_classes.html">Gestionează Grupe</a>
+            <a href="manage_schedule.html">Gestionează Orar</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Gestionează Orar</h1>
+        <form action="/submit_schedule" method="post">
+            <div class="form-group">
+                <label for="day">Ziua:</label>
+                <select id="day" name="day" required>
+                    <option value="Luni">Luni</option>
+                    <option value="Marți">Marți</option>
+                    <option value="Miercuri">Miercuri</option>
+                    <option value="Joi">Joi</option>
+                    <option value="Vineri">Vineri</option>
+                    <option value="Sâmbătă">Sâmbătă</option>
+                    <option value="Duminică">Duminică</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="time">Ora:</label>
+                <input type="time" id="time" name="time" required>
+            </div>
+            <div class="form-group">
+                <label for="class">Grupă:</label>
+                <input type="text" id="class" name="class" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">Materie:</label>
+                <input type="text" id="subject" name="subject" required>
+            </div>
+            <div class="form-group">
+                <label for="teacher">Profesor:</label>
+                <input type="text" id="teacher" name="teacher" required>
+            </div>
+            <div class="form-group">
+                <label for="room">Sala:</label>
+                <input type="text" id="room" name="room" required>
+            </div>
+            <button type="submit">Adaugă Ora</button>
+        </form>
+
+        <button class="generate-schedule" onclick="generateSchedule()">Generează Orar</button>
+
+        <h2>Orarul General</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ziua</th>
+                    <th>Ora</th>
+                    <th>Grupă</th>
+                    <th>Materie</th>
+                    <th>Profesor</th>
+                    <th>Sala</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Orarul existent va fi afișat aici -->
+                <tr>
+                    <td>Luni</td>
+                    <td>08:00</td>
+                    <td>10A</td>
+                    <td>Matematică</td>
+                    <td>Prof. Popescu</td>
+                    <td>Sala 101</td>
+                    <td>
+                        <button onclick="editSchedule(this)">Edit</button>
+                        <button onclick="deleteSchedule(this)">Delete</button>
+                    </td>
+                </tr>
+                <!-- Adaugă alte rânduri pentru orar aici -->
+            </tbody>
+        </table>
+    </main>
+    <footer>
+        <p>&copy; 2024 Școala XYZ</p>
+    </footer>
+    <script>
+        function editSchedule(button) {
+            // Logica pentru editarea unei ore
+            const row = button.parentNode.parentNode;
+            const cells = row.querySelectorAll('td');
+            cells[0].innerHTML = `<select>
+                <option value="Luni">Luni</option>
+                <option value="Marți">Marți</option>
+                <option value="Miercuri">Miercuri</option>
+                <option value="Joi">Joi</option>
+                <option value="Vineri">Vineri</option>
+                <option value="Sâmbătă">Sâmbătă</option>
+                <option value="Duminică">Duminică</option>
+            </select>`;
+            cells[1].innerHTML = `<input type="time" value="${cells[1].innerText}">`;
+            cells[2].innerHTML = `<input type="text" value="${cells[2].innerText}">`;
+            cells[3].innerHTML = `<input type="text" value="${cells[3].innerText}">`;
+            cells[4].innerHTML = `<input type="text" value="${cells[4].innerText}">`;
+            cells[5].innerHTML = `<input type="text" value="${cells[5].innerText}">`;
+            button.innerText = 'Save';
+            button.onclick = () => saveSchedule(button);
+        }
+
+        function saveSchedule(button) {
+            // Logica pentru salvarea unei ore editate
+            const row = button.parentNode.parentNode;
+            const inputs = row.querySelectorAll('input, select');
+            row.querySelectorAll('td')[0].innerText = inputs[0].value;
+            row.querySelectorAll('td')[1].innerText = inputs[1].value;
+            row.querySelectorAll('td')[2].innerText = inputs[2].value;
+            row.querySelectorAll('td')[3].innerText = inputs[3].value;
+            row.querySelectorAll('td')[4].innerText = inputs[4].value;
+            row.querySelectorAll('td')[5].innerText = inputs[5].value;
+            button.innerText = 'Edit';
+            button.onclick = () => editSchedule(button);
+        }
+
+        function deleteSchedule(button) {
+            // Logica pentru ștergerea unei ore
+            if (confirm('Sigur doriți să ștergeți această oră?')) {
+                const row = button.parentNode.parentNode;
+                row.parentNode.removeChild(row);
+            }
+        }
+
+        function generateSchedule() {
+            // Logica pentru generarea automată a orarului
+            alert('Orarul a fost generat!');
+        }
+    </script>
+</body>
+</html>
