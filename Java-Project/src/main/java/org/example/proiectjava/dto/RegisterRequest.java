@@ -8,7 +8,7 @@ import java.util.List;
 public class RegisterRequest
 {
     @NotBlank
-    private String JWT;
+    private String jwt;
     @NotBlank
     private String username;
     @NotBlank
@@ -20,7 +20,7 @@ public class RegisterRequest
 
     private List<String> courses;
 
-    public String getJWT() {return JWT; }
+    public String getJWT() {return jwt; }
     public String getUsername() {
         return username;
     }
@@ -29,6 +29,6 @@ public class RegisterRequest
     }
     public int getPrivilege() { return privilege; }
     public String getName() { return name; }
-    public List<String> getCourses() { return courses; };
+    public List<String> getCourses() { return courses; }
 
 }
