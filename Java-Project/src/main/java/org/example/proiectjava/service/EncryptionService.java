@@ -16,7 +16,6 @@ public class EncryptionService {
 
     private static final String SECRET_KEY = "9BDEoeaQcRBwZHJz6tZXcVR4IvR1uGeln8kottoXa+U3DiItJtB4PG7pe3VXFKP8jv/2p1ZsTKyOTRqIcm+SkQ==";
     private static final long EXPIRATION_TIME = 864_000_000;
-
     public static String generateToken(String UserInfo) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
@@ -44,6 +43,21 @@ public class EncryptionService {
 
         } catch (Exception e) {
             return 0;
+        }
+    }
+
+    public static String getUsernameFromToken(String token)
+    {
+        try {
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token);
+
+            return claims.getBody().getSubject();
+
+        } catch (Exception e) {
+            return "";
         }
     }
 

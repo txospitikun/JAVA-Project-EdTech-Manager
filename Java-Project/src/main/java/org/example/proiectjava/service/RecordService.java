@@ -7,10 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONString;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 
 public class RecordService {
@@ -414,6 +411,90 @@ public class RecordService {
         return -1;
     }
 
+    public static JSONArray getCoursesByProfessor(int professorId) {
+        JSONArray coursesArray = new JSONArray();
+        String query = "SELECT c.id, c.course_title, c.year, c.semester, c.credits " +
+                "FROM Courses c " +
+                "JOIN Didactic d ON c.id = d.id_course " +
+                "WHERE d.id_professor = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, professorId);
+                ResultSet rs = preparedStatement.executeQuery();
+                while (rs.next()) {
+                    JSONObject course = new JSONObject();
+                    course.put("id", rs.getInt("id"));
+                    course.put("courseTitle", rs.getString("course_title"));
+                    course.put("year", rs.getInt("year"));
+                    course.put("semester", rs.getInt("semester"));
+                    course.put("credits", rs.getInt("credits"));
+                    coursesArray.put(course);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return coursesArray;
+    }
 
+    public static boolean assignCoursesToProfessor(int professorId, List<Integer> courseIds) {
+        String deleteQuery = "DELETE FROM Didactic WHERE id_professor = ?";
+        String insertQuery = "INSERT INTO Didactic (id_professor, id_course) VALUES (?, ?)";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                // Start transaction
+                connection.setAutoCommit(false);
 
+                // Delete existing courses
+                try (PreparedStatement deleteStatement = connection.prepareStatement(deleteQuery)) {
+                    deleteStatement.setInt(1, professorId);
+                    deleteStatement.executeUpdate();
+                }
+
+                // Insert new courses
+                try (PreparedStatement insertStatement = connection.prepareStatement(insertQuery)) {
+                    for (int courseId : courseIds) {
+                        insertStatement.setInt(1, professorId);
+                        insertStatement.setInt(2, courseId);
+                        insertStatement.addBatch();
+                    }
+                    insertStatement.executeBatch();
+                }
+
+                // Commit transaction
+                connection.commit();
+                return true;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+            }
+        return false;
+    }
+
+    public static JSONObject getProfessorByUsername(String username) {
+        JSONObject professor = new JSONObject();
+        String query = "SELECT p.id, p.first_name, p.last_name, p.rank, p.user_id, u.username " +
+                "FROM Professors p " +
+                "JOIN Users u ON p.user_id = u.id " +
+                "WHERE u.username = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, username);
+                ResultSet rs = preparedStatement.executeQuery();
+                if (rs.next()) {
+                    professor.put("id", rs.getInt("id"));
+                    professor.put("firstName", rs.getString("first_name"));
+                    professor.put("lastName", rs.getString("last_name"));
+                    professor.put("rank", rs.getString("rank"));
+                    professor.put("userId", rs.getInt("user_id"));
+                    professor.put("username", rs.getString("username"));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return professor;
+    }
 }

@@ -18,6 +18,7 @@ public class AuthentificationController {
         if (!responseToken.isEmpty()) {
             JSONObject response = new JSONObject();
             response.put("JWT", responseToken);
+            response.put("Privilege", EncryptionService.authenticateToken(responseToken));
 
             return ResponseEntity.ok(response.toString());
         } else {
@@ -243,6 +244,47 @@ public class AuthentificationController {
                 return ResponseEntity.ok(response.toString());
             }
             return ResponseEntity.status(500).body("Failed to create student year.");
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
+
+    @GetMapping("/professor_courses")
+    public ResponseEntity<String> getProfessorCourses(@RequestParam int professorId, @RequestHeader("Authorization") String token) {
+        int authenticationResponse = EncryptionService.authenticateToken(token);
+        if (authenticationResponse == 3) {
+            JSONArray coursesArray = RecordService.getCoursesByProfessor(professorId);
+            JSONObject response = new JSONObject();
+            response.put("courses", coursesArray);
+            return ResponseEntity.ok(response.toString());
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
+
+    @PostMapping("/assign_courses")
+    public ResponseEntity<String> assignCoursesToProfessor(@RequestBody AssignCoursesRequest assignCoursesRequest) {
+        int authenticationResponse = EncryptionService.authenticateToken(assignCoursesRequest.getJWT());
+        if (authenticationResponse == 3) {
+            boolean assignResponse = RecordService.assignCoursesToProfessor(assignCoursesRequest.getProfessorId(), assignCoursesRequest.getCourseIds());
+            if (assignResponse) {
+                JSONObject response = new JSONObject();
+                response.put("Response", "successful");
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(500).body("Failed to assign courses to professor.");
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
+
+    @GetMapping("/get_professor")
+    public ResponseEntity<String> getProfessorByUsername(@RequestHeader("Authorization") String token) {
+        int authenticationResponse = EncryptionService.authenticateToken(token);
+        if (authenticationResponse == 3) {
+            JSONObject professor = RecordService.getProfessorByUsername(EncryptionService.getUsernameFromToken(token));
+            if (professor.length() > 0) {
+                return ResponseEntity.ok(professor.toString());
+            } else {
+                return ResponseEntity.status(404).body("Professor not found.");
+            }
         }
         return ResponseEntity.status(401).body("Invalid JWT.");
     }
