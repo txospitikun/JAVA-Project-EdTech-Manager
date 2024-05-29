@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Panel - Pune Note/Absente</title>
+    <link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="home_teacher.html">Home</a>
+            <a href="schedule_teacher.html">Orar</a>
+            <a href="grades_attendance.html">Pune Note/Absente</a>
+            <a href="announcements_teacher.html">Anunțuri</a>
+            <a href="/login.html">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Pune Note/Absente</h1>
+        <form action="/submit_grade" method="post">
+            <div class="form-group">
+                <label for="group">Grupă:</label>
+                <select id="group" name="group" required>
+                    <option value="10A">10A</option>
+                    <option value="10B">10B</option>
+                    <option value="11A">11A</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="subject">Materie:</label>
+                <select id="subject" name="subject" required>
+                    <option value="matematica">Matematică</option>
+                    <option value="fizica">Fizică</option>
+                    <option value="informatica">Informatică</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="student">Student:</label>
+                <select id="student" name="student" required>
+                    <option value="student1">Student 1</option>
+                    <option value="student2">Student 2</option>
+                    <option value="student3">Student 3</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="grade">Notă:</label>
+                <input type="number" id="grade" name="grade" min="1" max="10">
+            </div>
+            <div class="form-group">
+                <label for="attendance">Absenta:</label>
+                <input type="checkbox" id="attendance" name="attendance">
+            </div>
+            <div class="form-group">
+                <label for="date">Data:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <button type="submit">Trimite</button>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2024 Școala XYZ</p>
+    </footer>
+</body>
+</html>

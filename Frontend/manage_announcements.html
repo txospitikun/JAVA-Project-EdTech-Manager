@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Gestionează Anunțuri</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="home_admin.html">Home</a>
+            <a href="manage_teachers.html">Gestionează Profesori</a>
+            <a href="manage_students.html">Gestionează Elevi</a>
+            <a href="manage_classes.html">Gestionează Grupe</a>
+            <a href="manage_schedule.html">Gestionează Orar</a>
+            <a href="manage_announcements.html">Gestionează Anunțuri</a>
+            <a href="/login.html">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Gestionează Anunțuri</h1>
+        <form action="/submit_announcement" method="post">
+            <div class="form-group">
+                <label for="announcement-title">Titlu:</label>
+                <input type="text" id="announcement-title" name="announcement-title" required>
+            </div>
+            <div class="form-group">
+                <label for="announcement-text">Text:</label>
+                <textarea id="announcement-text" name="announcement-text" rows="4" required></textarea>
+            </div>
+            <button type="submit">Trimite Anunț</button>
+        </form>
+
+        <h2>Anunțuri Existente</h2>
+        <div class="announcements">
+            <div class="announcement">
+                <h2>Titlul Anunțului 1</h2>
+                <p class="date">12 Mai 2024</p>
+                <div class="text">
+                    <p>Aici este textul anunțului 1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam venenatis, velit eget fermentum pulvinar.</p>
+                </div>
+                <button onclick="deleteAnnouncement(this)">Șterge</button>
+            </div>
+            <div class="announcement">
+                <h2>Titlul Anunțului 2</h2>
+                <p class="date">10 Mai 2024</p>
+                <div class="text">
+                    <p>Aici este textul anunțului 2. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam venenatis, velit eget fermentum pulvinar.</p>
+                </div>
+                <button onclick="deleteAnnouncement(this)">Șterge</button>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Școala XYZ</p>
+    </footer>
+    <script>
+        function deleteAnnouncement(button) {
+            // Logica pentru stergerea unui anunt
+            if (confirm('Sigur doriți să ștergeți acest anunț?')) {
+                const announcement = button.parentNode;
+                announcement.parentNode.removeChild(announcement);
+            }
+        }
+    </script>
+</body>
+</html>

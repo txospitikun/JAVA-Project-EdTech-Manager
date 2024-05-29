@@ -14,7 +14,7 @@ public class RecordService {
     public static int registerProfessor(CreateProfessorRequest createProfessorRequest)
     {
         int registeredUserID = -1;
-        if((registeredUserID = AuthService.registerUser(createProfessorRequest.getUsername(), createProfessorRequest.getPassword(), 2)) == -1)
+        if((registeredUserID = AuthService.registerUser(createProfessorRequest.getUsername(), EncryptionService.encryptSHA256(createProfessorRequest.getPassword()), 2)) == -1)
         {
             return -1;
         }

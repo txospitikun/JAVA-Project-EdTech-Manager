@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Gestionează Profesori</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="home_admin.html">Home</a>
+            <a href="manage_teachers.html">Gestionează Profesori</a>
+            <a href="manage_students.html">Gestionează Elevi</a>
+            <a href="manage_classes.html">Gestionează Grupe</a>
+            <a href="manage_schedule.html">Gestionează Orar</a>
+            <a href="manage_announcements.html">Gestionează Anunțuri</a>
+            <a href="/login.html">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Gestionează Profesori</h1>
+        <form action="/submit_teacher" method="post">
+            <div class="form-group">
+                <label for="teacher-name">Nume:</label>
+                <input type="text" id="teacher-name" name="teacher-name" required>
+            </div>
+            <div class="form-group">
+                <label for="teacher-subjects">Materii predate:</label>
+                <select id="teacher-subjects" name="teacher-subjects[]" multiple required>
+                    <option value="Matematica">Matematică</option>
+                    <option value="Fizica">Fizică</option>
+                    <option value="Informatica">Informatică</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="teacher-username">Nume utilizator:</label>
+                <input type="text" id="teacher-username" name="teacher-username" required>
+            </div>
+            <div class="form-group">
+                <label for="teacher-password">Parolă:</label>
+                <input type="password" id="teacher-password" name="teacher-password" required>
+            </div>
+            <button type="submit">Creează/Editează Profesor</button>
+        </form>
+
+        <h2>Lista Profesorilor</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nume</th>
+                    <th>Materii</th>
+                    <th>Nume Utilizator</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Prof. Popescu</td>
+                    <td>Matematică, Fizică</td>
+                    <td>popescu</td>
+                    <td>
+                        <button onclick="editTeacher(this)">Edit</button>
+                        <button onclick="deleteTeacher(this)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+    <footer>
+        <p>&copy; 2024 Școala XYZ</p>
+    </footer>
+    <script>
+        function editTeacher(button) {
+            // Logica pentru editarea unui profesor
+            const row = button.parentNode.parentNode;
+            const cells = row.querySelectorAll('td');
+            cells[0].innerHTML = `<input type="text" value="${cells[0].innerText}">`;
+            cells[1].innerHTML = `<select multiple>
+                <option value="Matematica">Matematică</option>
+                <option value="Fizica">Fizică</option>
+                <option value="Informatica">Informatică</option>
+            </select>`;
+            const selectedSubjects = cells[1].innerText.split(', ');
+            const options = cells[1].querySelectorAll('option');
+            options.forEach(option => {
+                if (selectedSubjects.includes(option.value)) {
+                    option.selected = true;
+                }
+            });
+            cells[2].innerHTML = `<input type="text" value="${cells[2].innerText}">`;
+            button.innerText = 'Save';
+            button.onclick = () => saveTeacher(button);
+        }
+
+        function saveTeacher(button) {
+            // Logica pentru salvarea unui profesor editat
+            const row = button.parentNode.parentNode;
+            const inputs = row.querySelectorAll('input, select');
+            row.querySelectorAll('td')[0].innerText = inputs[0].value;
+            const selectedOptions = Array.from(inputs[1].selectedOptions).map(option => option.value);
+            row.querySelectorAll('td')[1].innerText = selectedOptions.join(', ');
+            row.querySelectorAll('td')[2].innerText = inputs[2].value;
+            button.innerText = 'Edit';
+            button.onclick = () => editTeacher(button);
+        }
+
+        function deleteTeacher(button) {
+            // Logica pentru stergerea unui profesor
+            if (confirm('Sigur doriți să ștergeți acest profesor?')) {
+                const row = button.parentNode.parentNode;
+                row.parentNode.removeChild(row);
+            }
+        }
+    </script>
+</body>
+</html>

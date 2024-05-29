@@ -251,7 +251,7 @@ public class AuthentificationController {
     @GetMapping("/professor_courses")
     public ResponseEntity<String> getProfessorCourses(@RequestParam int professorId, @RequestHeader("Authorization") String token) {
         int authenticationResponse = EncryptionService.authenticateToken(token);
-        if (authenticationResponse == 3) {
+        if (authenticationResponse == 3 || authenticationResponse == 2) {
             JSONArray coursesArray = RecordService.getCoursesByProfessor(professorId);
             JSONObject response = new JSONObject();
             response.put("courses", coursesArray);
@@ -278,7 +278,7 @@ public class AuthentificationController {
     @GetMapping("/get_professor")
     public ResponseEntity<String> getProfessorByUsername(@RequestHeader("Authorization") String token) {
         int authenticationResponse = EncryptionService.authenticateToken(token);
-        if (authenticationResponse == 3) {
+        if (authenticationResponse == 3 || authenticationResponse == 2) {
             JSONObject professor = RecordService.getProfessorByUsername(EncryptionService.getUsernameFromToken(token));
             if (professor.length() > 0) {
                 return ResponseEntity.ok(professor.toString());

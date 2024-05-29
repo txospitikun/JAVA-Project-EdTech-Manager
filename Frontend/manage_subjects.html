@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Gestionează Materii</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="home_admin.html">Home</a>
+            <a href="manage_teachers.html">Gestionează Profesori</a>
+            <a href="manage_students.html">Gestionează Elevi</a>
+            <a href="manage_classes.html">Gestionează Grupe</a>
+            <a href="manage_schedule.html">Gestionează Orar</a>
+            <a href="manage_announcements.html">Gestionează Anunțuri</a>
+            <a href="/login.html">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Gestionează Materii</h1>
+        <form action="/submit_subject" method="post">
+            <div class="form-group">
+                <label for="subject-name">Nume Materie:</label>
+                <input type="text" id="subject-name" name="subject-name" required>
+            </div>
+            <div class="form-group">
+                <label for="subject-hours">Ore pe săptămână:</label>
+                <input type="number" id="subject-hours" name="subject-hours" required>
+            </div>
+            <div class="form-group">
+                <label for="session-duration">Durata per sesiune (ore):</label>
+                <select id="session-duration" name="session-duration" required>
+                    <option value="1">1 oră</option>
+                    <option value="2">2 ore</option>
+                    <option value="3">3 ore</option>
+                </select>
+            </div>
+            <button type="submit">Adaugă/Editează Materie</button>
+        </form>
+
+        <h2>Lista Materiilor</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nume Materie</th>
+                    <th>Ore pe săptămână</th>
+                    <th>Durata per sesiune</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Materiile existente vor fi afisate aici -->
+                <tr>
+                    <td>Matematică</td>
+                    <td>3</td>
+                    <td>2 ore</td>
+                    <td>
+                        <button onclick="editSubject(this)">Edit</button>
+                        <button onclick="deleteSubject(this)">Delete</button>
+                    </td>
+                </tr>
+                <!-- Adaugă alte randuri pentru materii aici -->
+            </tbody>
+        </table>
+    </main>
+    <footer>
+        <p>&copy; 2024 Școala XYZ</p>
+    </footer>
+    <script>
+        function editSubject(button) {
+            // Logica pentru editarea unei materii
+            const row = button.parentNode.parentNode;
+            const cells = row.querySelectorAll('td');
+            cells[0].innerHTML = `<input type="text" value="${cells[0].innerText}">`;
+            cells[1].innerHTML = `<input type="number" value="${cells[1].innerText}">`;
+            cells[2].innerHTML = `<select>
+                <option value="1">1 oră</option>
+                <option value="2">2 ore</option>
+                <option value="3">3 ore</option>
+            </select>`;
+            cells[2].querySelector('select').value = cells[2].innerText.split(' ')[0];
+            button.innerText = 'Save';
+            button.onclick = () => saveSubject(button);
+        }
+
+        function saveSubject(button) {
+            // Logica pentru salvarea unei materii editate
+            const row = button.parentNode.parentNode;
+            const inputs = row.querySelectorAll('input, select');
+            row.querySelectorAll('td')[0].innerText = inputs[0].value;
+            row.querySelectorAll('td')[1].innerText = inputs[1].value;
+            row.querySelectorAll('td')[2].innerText = inputs[2].value + ' ore';
+            button.innerText = 'Edit';
+            button.onclick = () => editSubject(button);
+        }
+
+        function deleteSubject(button) {
+            // Logica pentru stergerea unei materii
+            if (confirm('Sigur doriți să ștergeți această materie?')) {
+                const row = button.parentNode.parentNode;
+                row.parentNode.removeChild(row);
+            }
+        }
+    </script>
+</body>
+</html>

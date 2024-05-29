@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Panel - Materii</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="subjects.html">Materii</a>
+            <a href="schedule.html">Orar</a>
+            <a href="announcements.html">Anunțuri</a>
+            <a href="/login.html">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Materii</h1>
+        <div class="subject">
+            <h2>Materie 1 <span>Media: 9.5 | Absențe: 2</span></h2>
+            <button onclick="toggleDetails('details1')">Detalii</button>
+            <div class="details" id="details1">
+                <p>Nota 1: 10 (12.01.2024, Prof. X)</p>
+                <p>Nota 2: 9 (15.02.2024, Prof. X)</p>
+                <p>Nota 3: 9.5 (20.03.2024, Prof. X)</p>
+            </div>
+        </div>
+        <div class="subject">
+            <h2>Materie 2 <span>Media: 8.5 | Absențe: 1</span></h2>
+            <button onclick="toggleDetails('details2')">Detalii</button>
+            <div class="details" id="details2">
+                <p>Nota 1: 8 (12.01.2024, Prof. Y)</p>
+                <p>Nota 2: 9 (15.02.2024, Prof. Y)</p>
+                <p>Nota 3: 8.5 (20.03.2024, Prof. Y)</p>
+            </div>
+        </div>
+        <div class="subject">
+            <h2>Materie 3 <span>Media: 9.0 | Absențe: 0</span></h2>
+            <button onclick="toggleDetails('details3')">Detalii</button>
+            <div class="details" id="details3">
+                <p>Nota 1: 9 (12.01.2024, Prof. Z)</p>
+                <p>Nota 2: 9 (15.02.2024, Prof. Z)</p>
+                <p>Nota 3: 9 (20.03.2024, Prof. Z)</p>
+            </div>
+        </div>
+    </main>
+    <script>
+        function toggleDetails(id) {
+            var element = document.getElementById(id);
+            if (element.style.display === "none" || element.style.display === "") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
