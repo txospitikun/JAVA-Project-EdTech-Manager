@@ -5,6 +5,7 @@ import org.example.proiectjava.database.DatabaseConnection;
 import org.example.proiectjava.dto.CreateProfessorRequest;
 import org.example.proiectjava.dto.LoginRequest;
 import org.example.proiectjava.dto.RegisterRequest;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONString;
 
@@ -105,4 +106,24 @@ public class RecordService {
     }
 
 
+    public static JSONArray getAllProfessors() {
+        JSONArray professorsArray = new JSONArray();
+        try (Connection conn = DatabaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM Professors")) {
+
+            while (rs.next()) {
+                JSONObject professor = new JSONObject();
+                professor.put("id", rs.getInt("ID"));
+                professor.put("firstName", rs.getString("FIRST_NAME"));
+                professor.put("lastName", rs.getString("LAST_NAME"));
+                professor.put("rank", rs.getString("RANK"));
+                professor.put("userId", rs.getInt("USER_ID"));
+                professorsArray.put(professor);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return professorsArray;
+    }
 }

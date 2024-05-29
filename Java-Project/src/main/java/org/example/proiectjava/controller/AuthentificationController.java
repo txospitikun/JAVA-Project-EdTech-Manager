@@ -68,4 +68,18 @@ public class AuthentificationController {
         }
         return ResponseEntity.status(401).body("Invalid JWT.");
     }
+
+
+
+    @GetMapping("/get_professors")
+    public ResponseEntity<String> getProfessors(@RequestHeader("Authorization") String token) {
+        int authenticationResponse = EncryptionService.authenticateToken(token);
+        if (authenticationResponse == 3) {
+            JSONArray professorsArray = RecordService.getAllProfessors();
+            JSONObject response = new JSONObject();
+            response.put("professors", professorsArray);
+            return ResponseEntity.ok(response.toString());
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
 }
