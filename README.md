@@ -1,3 +1,58 @@
+# REST API CALLS
+```
+/api/create_professor
+Payload:
+{
+    "jwt": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInByaXZpbGVnZSI6IjMiLCJpYXQiOjE3MTY5NzQ0NDIsImV4cCI6MTcxNzgzODQ0Mn0.Gp4MXNiWFXnYjMiP2akUbJrwXMdoO7EjsxR1PIIDuBjnL12AD_yDecYTISSj14-y6bxLfpksm0VEKksinUP1vw",
+    "firstname": "hadambu",
+    "lastname": "stelian",
+    "rank": "profesor doctor",
+    "username": "stelian06",
+    "password": "123",
+    "courses": [
+        "Matematica",
+        "Informatica"
+    ]
+}
+Response:
+{"Response":"successful"} - 200
+Invalid JWT - 401
+```
+
+```
+/api/login
+Payload:
+{
+    "username":"dennis",
+    "password":"123"
+}
+
+Response:
+{
+    "JWT": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ7XCJVc2VybmFtZVwiOlwiZGVubmlzXCIsXCJQcml2ZWxlZ2VcIjpcIjBcIn0iLCJpYXQiOjE3MTY5MjUwNDUsImV4cCI6MTcxNzc4OTA0NX0.DwzqrGo51HyJhG-pRaPLrlUnH9-6fMb3s0shTsLiFAGt2jiQbl10TPIcnnXHVCzYuhxjmzd9A5OWKh9sXipCCQ"
+}
+```
+
+```
+/api/register
+Payload:
+{           "jwt":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ7XCJVc2VybmFtZVwiOlwiZGVubmlzXCIsXCJQcml2ZWxlZ2VcIjpcIjBcIn0iLCJpYXQiOjE3MTY5MjUwMjksImV4cCI6MTcxNzc4OTAyOX0.YRRYD8n_s8iaAOWTsRBkTbDiF3yV1QrGSyikpgmm8Eatu2T00SlD94CiW8xrzvbmwQaGxwA4drSVHf7-EYOcwQ",
+    "username":"luca",
+    "password":"1234"
+}
+
+Response:
+Inregistrare cu succes:
+{"RegisterStatus":"sucessful"}
+
+Inregistrare (user-ul deja exista)
+{"RegisterStatus":"user_already_exists"}
+
+Inregistrare (format invalid)
+{"RegisterStatus":"user_register_form_invalid"}
+```
+
+
 # SQL TABELS
 
 ```
