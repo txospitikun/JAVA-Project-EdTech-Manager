@@ -1,47 +1,49 @@
 package org.example.proiectjava.service;
 
 import com.google.common.hash.Hashing;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.tomcat.util.json.JSONParser;
+import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 public class EncryptionService {
 
-    private static Logger logger = LoggerFactory.getLogger(EncryptionService.class);
-
     private static final String SECRET_KEY = "9BDEoeaQcRBwZHJz6tZXcVR4IvR1uGeln8kottoXa+U3DiItJtB4PG7pe3VXFKP8jv/2p1ZsTKyOTRqIcm+SkQ==";
-    private static final long EXPIRATION_TIME = 86400000;
+    private static final long EXPIRATION_TIME = 864_000_000;
 
-    public static String generateToken(String username) {
+    public static String generateToken(String UserInfo) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
 
+        JSONObject parsedUserInfo = new JSONObject(UserInfo);
+
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(parsedUserInfo.getString("Username"))
+                .claim("privilege", parsedUserInfo.getString("Privilege"))
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
                 .compact();
     }
 
-    public static boolean authenticateToken(String token) {
+    public static int authenticateToken(String token) {
         try {
-            logger.info("Starting authentification of JWT Token.");
-
             Jws<Claims> claims = Jwts.parserBuilder()
                     .setSigningKey(SECRET_KEY)
                     .build()
                     .parseClaimsJws(token);
 
-//            return claims.getBody().getExpiration().before(new Date());
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            logger.info(e.getMessage());
-            return false;
+            String privilege = claims.getBody().get("privilege", String.class);
+            return Integer.parseInt(privilege);
+
+        } catch (Exception e) {
+            return 0;
         }
     }
 

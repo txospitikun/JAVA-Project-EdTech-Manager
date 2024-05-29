@@ -1,14 +1,14 @@
 package org.example.proiectjava.controller;
 
+import org.example.proiectjava.dto.CreateProfessorRequest;
 import org.example.proiectjava.dto.RegisterRequest;
 import org.example.proiectjava.service.EncryptionService;
+import org.example.proiectjava.service.RecordService;
 import org.json.*;
 
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.example.proiectjava.dto.LoginRequest;
 import org.example.proiectjava.service.AuthService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,8 +18,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class AuthentificationController {
-    private static Logger logger = LoggerFactory.getLogger(AuthentificationController.class);
-
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
         String responseToken = AuthService.authentificateUser(loginRequest);
@@ -36,24 +34,14 @@ public class AuthentificationController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest)
     {
-        logger.info(registerRequest.getJWT());
-        boolean authentificationResponse = EncryptionService.authenticateToken(registerRequest.getJWT());
-        if(authentificationResponse)
+        int authenticationResponse = EncryptionService.authenticateToken(registerRequest.getJWT());
+        System.out.println(authenticationResponse);
+        if(authenticationResponse == 3)
         {
             System.out.println(registerRequest.getJWT());
-            int registerStatus = AuthService.registerUser(registerRequest);
+            AuthService.registerUser(registerRequest);
             JSONObject response = new JSONObject();
-            switch(registerStatus)
-            {
-                case 1:
-                    response.put("RegisterStatus", "1001");
-                    break;
-                case 2:
-                    response.put("RegisterStatus", "1002");
-                    break;
-                default:
-                    response.put("RegisterStatus", "0");
-            }
+            response.put("Response", "successful");
             return ResponseEntity.ok(response.toString());
         }
         else
@@ -61,5 +49,23 @@ public class AuthentificationController {
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
 
+    }
+
+    @PostMapping("/create_professor")
+    public ResponseEntity<String> create_professor(@RequestBody CreateProfessorRequest createProfessorRequest)
+    {
+        System.out.println(createProfessorRequest.getFirstName() + " " + createProfessorRequest.getLastName());
+        int authenticationResponse = EncryptionService.authenticateToken(createProfessorRequest.getJWT());
+        if(authenticationResponse == 3)
+        {
+            int professorID = RecordService.registerProfessor(createProfessorRequest);
+            System.out.println(createProfessorRequest.getCourses() + "with prof id: " + professorID);
+            RecordService.registerProfessorCourses(professorID, createProfessorRequest.getCourses());
+
+            JSONObject response = new JSONObject();
+            response.put("Response", "successful");
+            return ResponseEntity.ok(response.toString());
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
     }
 }
