@@ -1,15 +1,15 @@
 package org.example.proiectjava.dto;
 
 public class CreateCourseRequest {
-    private String JWT;
-    private String courseTitle;
-    private int year;
-    private int semester;
-    private int credits;
+    public String jwt;
+    public String courseTitle;
+    public int year;
+    public int semester;
+    public int credits;
 
     // Getters and setters
-    public String getJWT() { return JWT; }
-    public void setJWT(String JWT) { this.JWT = JWT; }
+    public String getJWT() { return jwt; }
+    public void setJWT(String jwt) { this.jwt = jwt; }
 
     public String getCourseTitle() { return courseTitle; }
     public void setCourseTitle(String courseTitle) { this.courseTitle = courseTitle; }

@@ -269,5 +269,151 @@ public class RecordService {
         return false;
     }
 
+    public static int registerStudent(CreateStudentRequest createStudentRequest) {
+        int registeredUserID = -1;
+        if ((registeredUserID = AuthService.registerUser(createStudentRequest.getUsername(), createStudentRequest.getPassword(), createStudentRequest.getPrivilege())) == -1) {
+            return -1;
+        }
+
+        String query = "INSERT INTO Students (nr_matricol, first_name, last_name, user_id) VALUES (?, ?, ?, ?)";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                preparedStatement.setString(1, createStudentRequest.getNrMatricol());
+                preparedStatement.setString(2, createStudentRequest.getFirstName());
+                preparedStatement.setString(3, createStudentRequest.getLastName());
+                preparedStatement.setInt(4, registeredUserID);
+
+                int affectedRows = preparedStatement.executeUpdate();
+                if (affectedRows > 0) {
+                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            return generatedKeys.getInt(1); // Assuming the generated key is in the first column
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    public static boolean updateStudent(EditStudentRequest editStudentRequest) {
+        String query = "UPDATE Students SET nr_matricol = ?, first_name = ?, last_name = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, editStudentRequest.getNrMatricol());
+                preparedStatement.setString(2, editStudentRequest.getFirstName());
+                preparedStatement.setString(3, editStudentRequest.getLastName());
+                preparedStatement.setInt(4, editStudentRequest.getStudentId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean deleteStudent(int studentId) {
+        String query = "DELETE FROM Students WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, studentId);
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static int registerGroup(CreateGroupRequest createGroupRequest) {
+        String query = "INSERT INTO Groups (group_name) VALUES (?)";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                preparedStatement.setString(1, createGroupRequest.getGroupName());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                if (affectedRows > 0) {
+                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            return generatedKeys.getInt(1);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    public static boolean updateGroup(EditGroupRequest editGroupRequest) {
+        String query = "UPDATE Groups SET group_name = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, editGroupRequest.getGroupName());
+                preparedStatement.setInt(2, editGroupRequest.getGroupId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean deleteGroup(int groupId) {
+        String query = "DELETE FROM Groups WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, groupId);
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static int registerStudentYear(CreateStudentYearRequest createStudentYearRequest) {
+        String query = "INSERT INTO StudentYears (id_student, year, study_year, group_id) VALUES (?, ?, ?, ?)";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                preparedStatement.setInt(1, createStudentYearRequest.getStudentId());
+                preparedStatement.setInt(2, createStudentYearRequest.getYear());
+                preparedStatement.setInt(3, createStudentYearRequest.getStudyYear());
+                preparedStatement.setInt(4, createStudentYearRequest.getGroupId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                if (affectedRows > 0) {
+                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            return generatedKeys.getInt(1); // Assuming the generated key is in the first column
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return -1;
+    }
+
+
 
 }

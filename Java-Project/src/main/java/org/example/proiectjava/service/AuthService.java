@@ -10,6 +10,7 @@ import org.json.JSONString;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class AuthService {
     public static String authentificateUser(LoginRequest loginRequest) {
@@ -60,17 +61,20 @@ public class AuthService {
     }
 
     public static int registerUser(String username, String password, int privilege) {
-        String query = "INSERT INTO Users (Username, Password, Privilege) VALUES (?, ?, ?) RETURNING ID";
+        String query = "INSERT INTO Users (username, password, privilege) VALUES (?, ?, ?)";
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 preparedStatement.setString(1, username);
-                preparedStatement.setString(2, EncryptionService.encryptSHA256(password));
+                preparedStatement.setString(2, password);
                 preparedStatement.setInt(3, privilege);
 
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    if (resultSet.next()) {
-                        return resultSet.getInt("ID");
+                int affectedRows = preparedStatement.executeUpdate();
+                if (affectedRows > 0) {
+                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            return generatedKeys.getInt(1); // Assuming the generated key is in the first column
+                        }
                     }
                 }
             }

@@ -137,4 +137,114 @@ public class AuthentificationController {
         return ResponseEntity.status(401).body("Invalid JWT.");
     }
 
+    @PostMapping("/create_student")
+    public ResponseEntity<String> createStudent(@RequestBody CreateStudentRequest createStudentRequest) {
+        int authenticationResponse = EncryptionService.authenticateToken(createStudentRequest.getJWT());
+        if (authenticationResponse == 3) {
+            int studentId = RecordService.registerStudent(createStudentRequest);
+            if (studentId != -1) {
+                JSONObject response = new JSONObject();
+                response.put("Response", "successful");
+                response.put("studentId", studentId);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(500).body("Failed to create student.");
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
+
+    @PutMapping("/edit_student")
+    public ResponseEntity<String> editStudent(@RequestBody EditStudentRequest editStudentRequest) {
+        int authenticationResponse = EncryptionService.authenticateToken(editStudentRequest.getJWT());
+        if (authenticationResponse == 3) {
+            boolean updateResponse = RecordService.updateStudent(editStudentRequest);
+            if (updateResponse) {
+                JSONObject response = new JSONObject();
+                response.put("Response", "successful");
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(500).body("Failed to update student.");
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
+
+    @DeleteMapping("/delete_student")
+    public ResponseEntity<String> deleteStudent(@RequestHeader("Authorization") String token, @RequestParam int studentId) {
+        int authenticationResponse = EncryptionService.authenticateToken(token);
+        if (authenticationResponse == 3) {
+            boolean deleteResponse = RecordService.deleteStudent(studentId);
+            if (deleteResponse) {
+                JSONObject response = new JSONObject();
+                response.put("Response", "successful");
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(500).body("Failed to delete student.");
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
+
+// Group endpoints
+
+    @PostMapping("/create_group")
+    public ResponseEntity<String> createGroup(@RequestBody CreateGroupRequest createGroupRequest) {
+        int authenticationResponse = EncryptionService.authenticateToken(createGroupRequest.getJWT());
+        if (authenticationResponse == 3) {
+            int groupId = RecordService.registerGroup(createGroupRequest);
+            if (groupId != -1) {
+                JSONObject response = new JSONObject();
+                response.put("Response", "successful");
+                response.put("groupId", groupId);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(500).body("Failed to create group.");
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
+
+    @PutMapping("/edit_group")
+    public ResponseEntity<String> editGroup(@RequestBody EditGroupRequest editGroupRequest) {
+        int authenticationResponse = EncryptionService.authenticateToken(editGroupRequest.getJWT());
+        if (authenticationResponse == 3) {
+            boolean updateResponse = RecordService.updateGroup(editGroupRequest);
+            if (updateResponse) {
+                JSONObject response = new JSONObject();
+                response.put("Response", "successful");
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(500).body("Failed to update group.");
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
+
+    @DeleteMapping("/delete_group")
+    public ResponseEntity<String> deleteGroup(@RequestHeader("Authorization") String token, @RequestParam int groupId) {
+        int authenticationResponse = EncryptionService.authenticateToken(token);
+        if (authenticationResponse == 3) {
+            boolean deleteResponse = RecordService.deleteGroup(groupId);
+            if (deleteResponse) {
+                JSONObject response = new JSONObject();
+                response.put("Response", "successful");
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(500).body("Failed to delete group.");
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
+
+    @PostMapping("/create_student_year")
+    public ResponseEntity<String> createStudentYear(@RequestBody CreateStudentYearRequest createStudentYearRequest) {
+        int authenticationResponse = EncryptionService.authenticateToken(createStudentYearRequest.getJWT());
+        if (authenticationResponse == 3) {
+            int studentYearId = RecordService.registerStudentYear(createStudentYearRequest);
+            if (studentYearId != -1) {
+                JSONObject response = new JSONObject();
+                response.put("Response", "successful");
+                response.put("studentYearId", studentYearId);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(500).body("Failed to create student year.");
+        }
+        return ResponseEntity.status(401).body("Invalid JWT.");
+    }
+
 }
