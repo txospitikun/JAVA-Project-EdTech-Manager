@@ -8,17 +8,13 @@ import java.util.List;
 public class RegisterRequest
 {
     @NotBlank
-    private String jwt;
+    public String jwt;
     @NotBlank
-    private String username;
+    public String username;
     @NotBlank
-    private String password;
+    public String password;
     @NotBlank
-    private int privilege;
-    @NotBlank
-    private String name;
-
-    private List<String> courses;
+    public int privilege;
 
     public String getJWT() {return jwt; }
     public String getUsername() {
@@ -28,7 +24,5 @@ public class RegisterRequest
         return password;
     }
     public int getPrivilege() { return privilege; }
-    public String getName() { return name; }
-    public List<String> getCourses() { return courses; }
 
 }
