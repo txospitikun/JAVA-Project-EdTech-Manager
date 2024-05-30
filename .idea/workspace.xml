@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2126027e-d382-40f2-a0a0-26875e301a01" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/controller/ManageStudents.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/dto/RegisterRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AdminPanel/src/main/java/org/example/AdminHome.java" beforeDir="false" afterPath="$PROJECT_DIR$/AdminPanel/src/main/java/org/example/AdminHome.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AdminPanel/src/main/java/org/example/ManageTeachers.java" beforeDir="false" afterPath="$PROJECT_DIR$/AdminPanel/src/main/java/org/example/ManageTeachers.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/mvnw" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/mvnw" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/mvnw.cmd" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/mvnw.cmd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/ProiectJavaApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/ProiectJavaApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/controller/AuthentificationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/controller/AuthentificationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/database/DatabaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/database/DatabaseConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/database/DatabaseConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/database/DatabaseConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/dto/CreateProfessorRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/dto/CreateProfessorRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/dto/LoginRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/dto/LoginRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/service/EncryptionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/service/EncryptionService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/service/RecordService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/main/java/org/example/proiectjava/service/RecordService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Java-Project/src/test/java/org/example/proiectjava/ProiectJavaApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/Java-Project/src/test/java/org/example/proiectjava/ProiectJavaApplicationTests.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2h95FBpkBFzSsvCmDd8UXaNMnVn" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "Merging luca",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Luca/OneDrive/Documents/javaProject",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="java-project-scholarship-manager" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="java-project-scholarship-manager" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-21.0.2-openjdk-21.0.2-4caba194b151-4f524021" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2126027e-d382-40f2-a0a0-26875e301a01" name="Changes" comment="" />
+      <created>1716993347292</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1716993347292</updated>
+      <workItem from="1716993348823" duration="2021000" />
+      <workItem from="1717105773736" duration="113000" />
+      <workItem from="1717105926531" duration="54000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
