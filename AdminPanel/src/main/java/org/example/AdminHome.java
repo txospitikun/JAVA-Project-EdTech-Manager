@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 
 public class AdminHome {
     private static JFrame frame;
-    private String jwt;
+    private static String jwt;
 
     public AdminHome(String jwt) {
         this.jwt = jwt;
@@ -21,7 +21,7 @@ public class AdminHome {
         frame.setVisible(true);
     }
 
-    private void placeComponents(JPanel panel) {
+    private static void placeComponents(JPanel panel) {
         panel.setLayout(null);
 
         JLabel welcomeLabel = new JLabel("Bine ai venit, Administrator!");
@@ -46,7 +46,7 @@ public class AdminHome {
         panel.add(manageStudentsButton);
         manageStudentsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-               // new ManageStudents(jwt).setVisible(true);
+                // Implementați logica pentru gestionarea elevilor
             }
         });
 
@@ -55,7 +55,7 @@ public class AdminHome {
         panel.add(manageClassesButton);
         manageClassesButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-              //  new ManageClasses(jwt).setVisible(true);
+                // Implementați logica pentru gestionarea grupelor
             }
         });
 
@@ -64,7 +64,7 @@ public class AdminHome {
         panel.add(manageScheduleButton);
         manageScheduleButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-               // new ManageSchedule(jwt).setVisible(true);
+                // Implementați logica pentru gestionarea orarului
             }
         });
 
@@ -73,7 +73,7 @@ public class AdminHome {
         panel.add(manageAnnouncementsButton);
         manageAnnouncementsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-             //   new ManageAnnouncements(jwt).setVisible(true);
+                // Implementați logica pentru gestionarea anunțurilor
             }
         });
 
@@ -84,12 +84,15 @@ public class AdminHome {
             public void actionPerformed(ActionEvent e) {
                 // Logica pentru logout
                 frame.dispose();
-                new LoginFrame().setVisible(true);
             }
         });
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new AdminHome("YOUR_JWT_TOKEN");
+            }
+        });
     }
 }
