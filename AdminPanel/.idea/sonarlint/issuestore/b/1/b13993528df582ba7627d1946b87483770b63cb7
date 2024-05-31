@@ -1,0 +1,14 @@
+
+[	java:S112_"FDefine and throw a dedicated exception instead of using a generic one.(Ïš¨´
+d
+java:S3252"IUse static access with "javax.swing.WindowConstants" for "EXIT_ON_CLOSE".(Õû»öşÿÿÿÿ
+?
+java:S2440S")Remove this instantiation of "AdminHome".(É¶¬Œ
+@
+java:S1874a"+Remove this use of "URL"; it is deprecated.(¦ôæI
+O
+java:S4719l"9Replace charset name argument with StandardCharsets.UTF_8(…‰õµ
+T
+java:S4719r"9Replace charset name argument with StandardCharsets.UTF_8(şº¢ÿÿÿÿÿ
+B
+java:S3398_",Move this method into "LoginActionListener".(Ïš¨´

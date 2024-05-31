@@ -18,38 +18,32 @@
     </header>
     <main>
         <h1>Pune Note/Absente</h1>
-        <form action="/submit_grade" method="post">
+        <form id="grade-form">
             <div class="form-group">
                 <label for="group">Grupă:</label>
                 <select id="group" name="group" required>
-                    <option value="10A">10A</option>
-                    <option value="10B">10B</option>
-                    <option value="11A">11A</option>
+                    <!-- Groups will be loaded here -->
                 </select>
             </div>
             <div class="form-group">
                 <label for="subject">Materie:</label>
                 <select id="subject" name="subject" required>
-                    <option value="matematica">Matematică</option>
-                    <option value="fizica">Fizică</option>
-                    <option value="informatica">Informatică</option>
+                    <!-- Subjects will be loaded here -->
                 </select>
             </div>
             <div class="form-group">
                 <label for="student">Student:</label>
                 <select id="student" name="student" required>
-                    <option value="student1">Student 1</option>
-                    <option value="student2">Student 2</option>
-                    <option value="student3">Student 3</option>
+                    <!-- Students will be loaded here -->
                 </select>
             </div>
             <div class="form-group">
                 <label for="grade">Notă:</label>
-                <input type="number" id="grade" name="grade" min="1" max="10">
+                <input type="number" id="grade" name="grade" min="-1" max="10" required>
             </div>
             <div class="form-group">
                 <label for="attendance">Absenta:</label>
-                <input type="checkbox" id="attendance" name="attendance">
+                <input type="checkbox" id="attendance" name="attendance" style="margin-left: 10px;">
             </div>
             <div class="form-group">
                 <label for="date">Data:</label>
@@ -61,5 +55,148 @@
     <footer>
         <p>&copy; 2024 Școala XYZ</p>
     </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const jwt = getCookie("jwt");
+            if (!jwt) {
+                window.location.href = "/login.html";
+                return;
+            }
+
+            let selectedCourseId = null;
+
+            loadGroups();
+            loadCourses();
+
+            document.getElementById('group').addEventListener('change', loadStudents);
+            document.getElementById('subject').addEventListener('change', updateSelectedCourseId);
+            document.getElementById('attendance').addEventListener('change', toggleGradeInput);
+            document.getElementById('grade-form').addEventListener('submit', submitGrade);
+
+            function loadGroups() {
+                fetch('http://localhost:8080/api/get_groups', {
+                    method: "GET",
+                    headers: {
+                        "Authorization": jwt
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const groupSelect = document.getElementById('group');
+                    groupSelect.innerHTML = "";
+                    data.groups.forEach(group => {
+                        const option = document.createElement('option');
+                        option.value = group.id;
+                        option.textContent = group.groupName;
+                        groupSelect.appendChild(option);
+                    });
+                    loadStudents(); // Load students for the first group by default
+                })
+                .catch(error => console.error("Error fetching groups:", error));
+            }
+
+            function loadCourses() {
+                fetch('http://localhost:8080/api/get_courses', {
+                    method: "GET",
+                    headers: {
+                        "Authorization": jwt
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const subjectSelect = document.getElementById('subject');
+                    subjectSelect.innerHTML = "";
+                    data.courses.forEach(course => {
+                        const option = document.createElement('option');
+                        option.value = course.courseId;
+                        option.textContent = course.courseTitle;
+                        subjectSelect.appendChild(option);
+                    });
+                    selectedCourseId = parseInt(data.courses[0].courseId, 10); // Set initial selected course ID
+                })
+                .catch(error => console.error("Error fetching courses:", error));
+            }
+
+            function loadStudents() {
+                const groupId = document.getElementById('group').value;
+                fetch(`http://localhost:8080/api/get_students_by_group?groupId=${groupId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": jwt
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const studentSelect = document.getElementById('student');
+                    studentSelect.innerHTML = "";
+                    data.students.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student.nrMatricol;
+                        option.textContent = `${student.firstName} ${student.lastName}`;
+                        studentSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error fetching students:", error));
+            }
+
+            function updateSelectedCourseId() {
+                selectedCourseId = parseInt(document.getElementById('subject').value, 10);
+                console.log("Selected Course ID: ", selectedCourseId); // For debugging
+            }
+
+            function toggleGradeInput() {
+                const gradeInput = document.getElementById('grade');
+                if (document.getElementById('attendance').checked) {
+                    gradeInput.style.display = 'none';
+                    gradeInput.value = -1;
+                } else {
+                    gradeInput.style.display = 'block';
+                    gradeInput.value = '';
+                }
+            }
+
+            function submitGrade(event) {
+                event.preventDefault();
+
+                const nrMatricol = document.getElementById('student').value;
+                const idCourse = selectedCourseId;
+                const value = document.getElementById('attendance').checked ? -1 : parseInt(document.getElementById('grade').value, 10);
+                const notationDate = document.getElementById('date').value;
+
+                const data = {
+                    jwt: jwt,
+                    nrMatricol,
+                    idCourse,
+                    value,
+                    notationDate
+                };
+
+                console.log("Data to be sent: ", data); // For debugging
+
+                fetch('http://localhost:8080/api/add_grade', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.Response === 'successful') {
+                        alert('Nota a fost salvată cu succes!');
+                    } else {
+                        alert('A apărut o eroare la salvarea notei.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(";").shift();
+            }
+        });
+    </script>
 </body>
 </html>

@@ -347,12 +347,121 @@
         @GetMapping("/get_courses")
         public ResponseEntity<String> getCourses(@RequestHeader("Authorization") String token) {
             int authenticationResponse = EncryptionService.authenticateToken(token);
-            if (authenticationResponse == 3) {
+            if (authenticationResponse == 3 || authenticationResponse == 2 || authenticationResponse == 1) {
                 JSONArray coursesArray = RecordService.getAllCourses();
                 JSONObject response = new JSONObject();
                 response.put("courses", coursesArray);
                 return ResponseEntity.ok(response.toString());
             }
             return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @PostMapping("/add_grade")
+        public ResponseEntity<String> addGrade(@RequestBody AddGradeRequest addGradeRequest) {
+            int authenticationResponse = EncryptionService.authenticateToken(addGradeRequest.getJWT());
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                int gradeId = RecordService.addGrade(addGradeRequest);
+                if (gradeId != -1) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    response.put("gradeId", gradeId);
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to add grade.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @PutMapping("/edit_grade")
+        public ResponseEntity<String> editGrade(@RequestBody EditGradeRequest editGradeRequest) {
+            int authenticationResponse = EncryptionService.authenticateToken(editGradeRequest.getJWT());
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                boolean updateResponse = RecordService.editGrade(editGradeRequest);
+                if (updateResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to edit grade.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @DeleteMapping("/delete_grade")
+        public ResponseEntity<String> deleteGrade(@RequestHeader("Authorization") String token, @RequestParam int gradeId) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                boolean deleteResponse = RecordService.deleteGrade(gradeId);
+                if (deleteResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to delete grade.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/get_students")
+        public ResponseEntity<String> getStudents(@RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                JSONArray studentsArray = RecordService.getAllStudents();
+                JSONObject response = new JSONObject();
+                response.put("students", studentsArray);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/get_grades")
+        public ResponseEntity<String> getGrades(@RequestParam String nrMatricol, @RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                JSONArray gradesArray = RecordService.getGradesByNrMatricol(nrMatricol);
+                JSONObject response = new JSONObject();
+                response.put("grades", gradesArray);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/get_groups")
+        public ResponseEntity<String> getGroups(@RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                JSONArray groupsArray = RecordService.getAllGroups();
+                JSONObject response = new JSONObject();
+                response.put("groups", groupsArray);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/get_students_by_group")
+        public ResponseEntity<String> getStudentsByGroup(@RequestParam int groupId, @RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                JSONArray studentsArray = RecordService.getStudentsByGroup(groupId);
+                JSONObject response = new JSONObject();
+                response.put("students", studentsArray);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/get_student_info")
+        public ResponseEntity<String> getStudentInfo(@RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse < 1) {
+                return ResponseEntity.status(401).body("Invalid JWT.");
+            }
+
+            JSONObject studentInfo = RecordService.getStudentInfoByUserId(authenticationResponse);
+            if (studentInfo != null) {
+                return ResponseEntity.ok(studentInfo.toString());
+            } else {
+                return ResponseEntity.status(500).body("Failed to retrieve student info.");
+            }
         }
     }

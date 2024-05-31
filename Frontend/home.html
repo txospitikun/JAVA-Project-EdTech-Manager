@@ -17,14 +17,77 @@
         </nav>
     </header>
     <main>
-        <h1>Bine ai venit, [Nume Student]</h1>
+        <h1>Bine ai venit, <span id="student-name">[Nume Student]</span></h1>
         <div class="student-info">
             <p><strong>Școala:</strong> [Numele Școlii]</p>
-            <p><strong>Nume complet:</strong> [Nume Complet]</p>
-            <p><strong>Clasa:</strong> [Clasa]</p>
-            <p><strong>Media Generală:</strong> [Media Generală]</p>
-            <p><strong>Număr Total de Absențe:</strong> [Nr. Absențe]</p>
+            <p><strong>Nume complet:</strong> <span id="full-name">[Nume Complet]</span></p>
+            <p><strong>Grup:</strong> <span id="group">[Clasa]</span></p>
+            <p><strong>Media Generală:</strong> <span id="average-grade">[Media Generală]</span></p>
+            <p><strong>Număr Total de Absențe:</strong> <span id="total-absences">[Nr. Absențe]</span></p>
         </div>
     </main>
+    <footer>
+        <p>&copy; 2024 Școala XYZ</p>
+    </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const jwt = getCookie("jwt");
+            if (!jwt) {
+                window.location.href = "/login.html";
+                return;
+            }
+
+            fetch('http://localhost:8080/api/get_student_info', {
+                method: "GET",
+                headers: {
+                    "Authorization": jwt
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("student-name").innerText = `${data.firstName} ${data.lastName}`;
+                document.getElementById("full-name").innerText = `${data.firstName} ${data.lastName}`;
+                document.getElementById("group").innerText = data.groupName;
+
+                calculateAverageAndAbsences(data.nrMatricol, jwt);
+            })
+            .catch(error => console.error("Error fetching student info:", error));
+
+            function calculateAverageAndAbsences(nrMatricol, jwt) {
+                fetch(`http://localhost:8080/api/get_grades?nrMatricol=${nrMatricol}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": jwt
+                    }
+                })
+                .then(response => response.json())
+                .then(grades => {
+                    let totalGrades = 0;
+                    let gradesCount = 0;
+                    let absencesCount = 0;
+
+                    grades.forEach(grade => {
+                        if (grade.value !== -1) {
+                            totalGrades += grade.value;
+                            gradesCount++;
+                        } else {
+                            absencesCount++;
+                        }
+                    });
+
+                    const averageGrade = gradesCount > 0 ? (totalGrades / gradesCount).toFixed(2) : "N/A";
+                    document.getElementById("average-grade").innerText = averageGrade;
+                    document.getElementById("total-absences").innerText = absencesCount;
+                })
+                .catch(error => console.error("Error fetching grades:", error));
+            }
+
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(";").shift();
+            }
+        });
+    </script>
 </body>
 </html>
