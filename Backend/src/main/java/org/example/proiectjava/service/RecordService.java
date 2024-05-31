@@ -14,7 +14,7 @@ public class RecordService {
     public static int registerProfessor(CreateProfessorRequest createProfessorRequest)
     {
         int registeredUserID = -1;
-        if((registeredUserID = AuthService.registerUser(createProfessorRequest.getUsername(), EncryptionService.encryptSHA256(createProfessorRequest.getPassword()), 2)) == -1)
+        if((registeredUserID = AuthService.registerUser(createProfessorRequest.getUsername(), createProfessorRequest.getPassword(), 2)) == -1)
         {
             return -1;
         }
@@ -49,13 +49,13 @@ public class RecordService {
             return -1;
         }
 
-        int foundCourseID = -1;
-        for (var course : courses) {
+        for (String courseTitle : courses) {
+            int foundCourseID = -1;
             String query = "SELECT ID FROM Courses WHERE course_title = ?";
             try (Connection connection = DatabaseConfig.getConnection()) {
                 if (connection != null) {
                     PreparedStatement preparedStatement = connection.prepareStatement(query);
-                    preparedStatement.setString(1, course);
+                    preparedStatement.setString(1, courseTitle);
 
                     try (ResultSet resultSet = preparedStatement.executeQuery()) {
                         if (resultSet.next()) {
@@ -103,7 +103,13 @@ public class RecordService {
 
     public static JSONArray getAllProfessors() {
         JSONArray professorsArray = new JSONArray();
-        String query = "SELECT p.*, u.* FROM Professors p JOIN Users u ON p.user_id = u.id";
+        String query = "SELECT p.id, p.first_name, p.last_name, p.rank, u.username, " +
+                "ARRAY_AGG(c.course_title || ' ' || c.year || ' ' || c.semester) AS courses " +
+                "FROM professors p " +
+                "JOIN users u ON p.user_id = u.id " +
+                "LEFT JOIN didactic d ON p.id = d.id_professor " +
+                "LEFT JOIN courses c ON d.id_course = c.id " +
+                "GROUP BY p.id, p.first_name, p.last_name, p.rank, u.username";
 
         try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement();
@@ -111,13 +117,21 @@ public class RecordService {
 
             while (rs.next()) {
                 JSONObject professor = new JSONObject();
-                professor.put("professorId", rs.getInt("p.ID"));
-                professor.put("firstName", rs.getString("p.FIRST_NAME"));
-                professor.put("lastName", rs.getString("p.LAST_NAME"));
-                professor.put("rank", rs.getString("p.RANK"));
-                professor.put("userId", rs.getInt("p.USER_ID"));
-                professor.put("username", rs.getString("u.USERNAME"));
-                // Add any additional columns from the Users table if needed
+                professor.put("id", rs.getInt("id"));
+                professor.put("firstName", rs.getString("first_name"));
+                professor.put("lastName", rs.getString("last_name"));
+                professor.put("rank", rs.getString("rank"));
+                professor.put("username", rs.getString("username"));
+
+                // Obținem materiile ca un șir de caractere
+                Array coursesArray = rs.getArray("courses");
+                if (coursesArray != null) {
+                    String[] courses = (String[]) coursesArray.getArray();
+                    professor.put("courses", courses);
+                } else {
+                    professor.put("courses", new String[0]);
+                }
+
                 professorsArray.put(professor);
             }
         } catch (Exception e) {
@@ -203,6 +217,27 @@ public class RecordService {
                 }
             }
         }
+    }
+    public static JSONArray getAllCourses() {
+        JSONArray coursesArray = new JSONArray();
+        String query = "SELECT * FROM Courses";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                JSONObject course = new JSONObject();
+                course.put("courseId", rs.getInt("ID"));
+                course.put("courseTitle", rs.getString("COURSE_TITLE"));
+                course.put("year", rs.getInt("YEAR"));
+                course.put("semester", rs.getInt("SEMESTER"));
+                coursesArray.put(course);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return coursesArray;
     }
 
     public static int registerCourse(CreateCourseRequest createCourseRequest) {
@@ -468,7 +503,7 @@ public class RecordService {
             }
         } catch (Exception e) {
             System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
-            }
+        }
         return false;
     }
 

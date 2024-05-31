@@ -1,7 +1,6 @@
 package org.example.proiectjava.dto;
 
 import jakarta.validation.constraints.NotBlank;
-
 import java.util.List;
 
 public class CreateProfessorRequest {
@@ -18,7 +17,7 @@ public class CreateProfessorRequest {
     @NotBlank
     public String password;
     @NotBlank
-    public List<String> courses;
+    private List<String> courses;
 
     public String getJWT() {
         return jwt;
@@ -44,7 +43,7 @@ public class CreateProfessorRequest {
         return lastname;
     }
 
-    public List<String> getCourses() {
+    public @NotBlank List<String> getCourses() {
         return courses;
     }
 }
