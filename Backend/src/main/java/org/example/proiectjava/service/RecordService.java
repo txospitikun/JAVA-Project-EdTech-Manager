@@ -103,13 +103,13 @@ public class RecordService {
 
     public static JSONArray getAllProfessors() {
         JSONArray professorsArray = new JSONArray();
-        String query = "SELECT p.id, p.first_name, p.last_name, p.rank, u.username, " +
-                "ARRAY_AGG(c.course_title || ' ' || c.year || ' ' || c.semester) AS courses " +
+        String query = "SELECT p.id, p.first_name, p.last_name, p.rank, u.id AS user_id, u.username, " +
+                "ARRAY_AGG(c.course_title) AS courses " +
                 "FROM professors p " +
                 "JOIN users u ON p.user_id = u.id " +
                 "LEFT JOIN didactic d ON p.id = d.id_professor " +
                 "LEFT JOIN courses c ON d.id_course = c.id " +
-                "GROUP BY p.id, p.first_name, p.last_name, p.rank, u.username";
+                "GROUP BY p.id, p.first_name, p.last_name, p.rank, u.id, u.username";
 
         try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement();
@@ -118,12 +118,12 @@ public class RecordService {
             while (rs.next()) {
                 JSONObject professor = new JSONObject();
                 professor.put("id", rs.getInt("id"));
-                professor.put("firstName", rs.getString("first_name"));
-                professor.put("lastName", rs.getString("last_name"));
+                professor.put("first_name", rs.getString("first_name"));
+                professor.put("last_name", rs.getString("last_name"));
                 professor.put("rank", rs.getString("rank"));
+                professor.put("user_id", rs.getInt("user_id"));
                 professor.put("username", rs.getString("username"));
 
-                // Obținem materiile ca un șir de caractere
                 Array coursesArray = rs.getArray("courses");
                 if (coursesArray != null) {
                     String[] courses = (String[]) coursesArray.getArray();
@@ -141,27 +141,135 @@ public class RecordService {
     }
 
 
-    public static boolean updateProfessor(EditProfessorRequest editProfessorRequest) {
-        String updateProfessorQuery = "UPDATE Professors SET first_name = ?, last_name = ?, rank = ? WHERE ID = ?";
+
+    public static boolean updateProfessorFirstName(EditProfessorFirstNameRequest request) {
+        String query = "UPDATE Professors SET first_name = ? WHERE id = ?";
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
-                PreparedStatement preparedStatement = connection.prepareStatement(updateProfessorQuery);
-                preparedStatement.setString(1, editProfessorRequest.getFirstName());
-                preparedStatement.setString(2, editProfessorRequest.getLastName());
-                preparedStatement.setString(3, editProfessorRequest.getRank());
-                preparedStatement.setInt(4, editProfessorRequest.getProfessorID());
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, request.getFirstName());
+                preparedStatement.setInt(2, request.getProfessorID());
 
                 int affectedRows = preparedStatement.executeUpdate();
-                if (affectedRows > 0) {
-                    updateProfessorCourses(editProfessorRequest.getProfessorID(), editProfessorRequest.getCourses());
-                    return true;
-                }
+                return affectedRows > 0;
             }
         } catch (Exception e) {
             System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
         }
         return false;
     }
+
+    public static boolean updateProfessorLastName(EditProfessorLastNameRequest request) {
+        String query = "UPDATE Professors SET last_name = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, request.getLastName());
+                preparedStatement.setInt(2, request.getProfessorID());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean updateProfessorRank(EditProfessorRankRequest request) {
+        String query = "UPDATE Professors SET rank = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, request.getRank());
+                preparedStatement.setInt(2, request.getProfessorID());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean updateProfessorUsername(EditProfessorUsernameRequest request) {
+        String query = "UPDATE Users SET username = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, request.getUsername());
+                preparedStatement.setInt(2, request.getUserId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean updateProfessorCourses(EditProfessorCoursesRequest request) {
+        int professorId = request.getProfessorID();
+        List<String> courses = request.getCourses();
+
+        // Ștergeți cursurile existente
+        String deleteQuery = "DELETE FROM Didactic WHERE id_professor = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement deleteStatement = connection.prepareStatement(deleteQuery);
+                deleteStatement.setInt(1, professorId);
+                deleteStatement.executeUpdate();
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+            return false;
+        }
+
+        // Adăugați cursurile noi
+        for (String courseTitle : courses) {
+            int foundCourseID = -1;
+            String query = "SELECT ID FROM Courses WHERE course_title = ?";
+            try (Connection connection = DatabaseConfig.getConnection()) {
+                if (connection != null) {
+                    PreparedStatement preparedStatement = connection.prepareStatement(query);
+                    preparedStatement.setString(1, courseTitle);
+
+                    try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                        if (resultSet.next()) {
+                            foundCourseID = resultSet.getInt("ID");
+                        } else {
+                            foundCourseID = -1;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+                return false;
+            }
+
+            if (foundCourseID == -1) {
+                continue;
+            }
+
+            String insertQuery = "INSERT INTO Didactic (id_professor, id_course) VALUES (?, ?)";
+            try (Connection connection = DatabaseConfig.getConnection()) {
+                if (connection != null) {
+                    PreparedStatement insertStatement = connection.prepareStatement(insertQuery);
+                    insertStatement.setInt(1, professorId);
+                    insertStatement.setInt(2, foundCourseID);
+                    insertStatement.executeUpdate();
+                }
+            } catch (Exception e) {
+                System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 
     private static void updateProfessorCourses(int professorID, List<String> courses) {
         // Delete existing courses for the professor

@@ -1,6 +1,8 @@
 package org.example;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,10 +12,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.List;
 
 public class ManageTeachers extends JFrame {
     private String jwt;
@@ -135,16 +136,52 @@ public class ManageTeachers extends JFrame {
 
         panel.add(formPanel, BorderLayout.NORTH);
 
-        String[] columnNames = {"Prenume", "Nume", "Rang", "Nume utilizator", "Materii"};
-        tableModel = new DefaultTableModel(columnNames, 0);
+        // Add columns for professorID and userID
+        String[] columnNames = {"ProfesorID", "UserID", "Prenume", "Nume", "Rang", "Nume utilizator", "Materii"};
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column > 2; // Make all columns except ID columns editable
+            }
+        };
         JTable table = new JTable(tableModel);
+        // Hide the first two columns
+        table.removeColumn(table.getColumnModel().getColumn(0));
+        table.removeColumn(table.getColumnModel().getColumn(0));
+
         JScrollPane tableScrollPane = new JScrollPane(table);
         panel.add(tableScrollPane, BorderLayout.CENTER);
 
         loadCourses();
+
+        tableModel.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                int row = e.getFirstRow();
+                int column = e.getColumn();
+
+                switch (column) {
+                    case 2:
+                        updateProfessorFirstName(row);
+                        break;
+                    case 3:
+                        updateProfessorLastName(row);
+                        break;
+                    case 4:
+                        updateProfessorRank(row);
+                        break;
+                    case 5:
+                        updateProfessorUsername(row);
+                        break;
+                    case 6:
+                        updateProfessorCourses(row);
+                        break;
+                }
+            }
+        });
     }
 
-    private void createOrEditProfessor(String firstName, String lastName, String rank, String username, String password, java.util.List<String> courses) {
+    private void createOrEditProfessor(String firstName, String lastName, String rank, String username, String password, List<String> courses) {
         try {
             String url = "http://localhost:8080/api/create_professor";
             URL obj = new URL(url);
@@ -159,7 +196,7 @@ public class ManageTeachers extends JFrame {
             jsonInput.put("rank", rank);
             jsonInput.put("username", username);
             jsonInput.put("password", password);
-            jsonInput.put("courses", new JSONArray(courses)); // Trimitere doar a numelor cursurilor
+            jsonInput.put("courses", new JSONArray(courses));
 
             con.setDoOutput(true);
             try (OutputStream os = con.getOutputStream()) {
@@ -184,9 +221,6 @@ public class ManageTeachers extends JFrame {
             statusLabel.setText("Eroare de conexiune!");
         }
     }
-
-
-
 
     private void loadProfessors() {
         try {
@@ -213,8 +247,10 @@ public class ManageTeachers extends JFrame {
                 tableModel.setRowCount(0); // Clear existing rows
                 for (int i = 0; i < professorsArray.length(); i++) {
                     JSONObject professor = professorsArray.getJSONObject(i);
-                    String firstName = professor.getString("firstName");
-                    String lastName = professor.getString("lastName");
+                    int professorID = professor.getInt("id");
+                    int userID = professor.getInt("user_id"); // Ensure this key is present
+                    String firstName = professor.getString("first_name");
+                    String lastName = professor.getString("last_name");
                     String rank = professor.getString("rank");
                     String username = professor.getString("username");
                     JSONArray coursesArray = professor.optJSONArray("courses");
@@ -232,7 +268,7 @@ public class ManageTeachers extends JFrame {
                         }
                     }
 
-                    tableModel.addRow(new Object[]{firstName, lastName, rank, username, coursesBuilder.toString()});
+                    tableModel.addRow(new Object[]{professorID, userID, firstName, lastName, rank, username, coursesBuilder.toString()});
                 }
             } else {
                 statusLabel.setForeground(Color.RED);
@@ -283,5 +319,170 @@ public class ManageTeachers extends JFrame {
         }
     }
 
+    private void updateProfessorFirstName(int row) {
+        try {
+            String url = "http://localhost:8080/api/update-professor/first_name";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("PUT");
+            con.setRequestProperty("Content-Type", "application/json");
 
+            JSONObject jsonInput = new JSONObject();
+            jsonInput.put("jwt", jwt);
+            jsonInput.put("professorID", tableModel.getValueAt(row, 0)); // Use professorID
+            jsonInput.put("firstName", tableModel.getValueAt(row, 2).toString());
+
+            con.setDoOutput(true);
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = jsonInput.toString().getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                statusLabel.setForeground(Color.GREEN);
+                statusLabel.setText("Prenume actualizat cu succes!");
+            } else {
+                statusLabel.setForeground(Color.RED);
+                statusLabel.setText("Eroare la actualizarea prenumelui!");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            statusLabel.setText("Eroare de conexiune!");
+        }
+    }
+
+    private void updateProfessorLastName(int row) {
+        try {
+            String url = "http://localhost:8080/api/update-professor/last_name";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("PUT");
+            con.setRequestProperty("Content-Type", "application/json");
+
+            JSONObject jsonInput = new JSONObject();
+            jsonInput.put("jwt", jwt);
+            jsonInput.put("professorID", tableModel.getValueAt(row, 0)); // Use professorID
+            jsonInput.put("lastName", tableModel.getValueAt(row, 3).toString());
+
+            con.setDoOutput(true);
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = jsonInput.toString().getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                statusLabel.setForeground(Color.GREEN);
+                statusLabel.setText("Nume actualizat cu succes!");
+            } else {
+                statusLabel.setForeground(Color.RED);
+                statusLabel.setText("Eroare la actualizarea numelui!");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            statusLabel.setText("Eroare de conexiune!");
+        }
+    }
+
+    private void updateProfessorRank(int row) {
+        try {
+            String url = "http://localhost:8080/api/update-professor/rank";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("PUT");
+            con.setRequestProperty("Content-Type", "application/json");
+
+            JSONObject jsonInput = new JSONObject();
+            jsonInput.put("jwt", jwt);
+            jsonInput.put("professorID", tableModel.getValueAt(row, 0)); // Use professorID
+            jsonInput.put("rank", tableModel.getValueAt(row, 4).toString());
+
+            con.setDoOutput(true);
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = jsonInput.toString().getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                statusLabel.setForeground(Color.GREEN);
+                statusLabel.setText("Rang actualizat cu succes!");
+            } else {
+                statusLabel.setForeground(Color.RED);
+                statusLabel.setText("Eroare la actualizarea rangului!");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            statusLabel.setText("Eroare de conexiune!");
+        }
+    }
+
+    private void updateProfessorUsername(int row) {
+        try {
+            String url = "http://localhost:8080/api/update-professor/username";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("PUT");
+            con.setRequestProperty("Content-Type", "application/json");
+
+            JSONObject jsonInput = new JSONObject();
+            jsonInput.put("jwt", jwt);
+            jsonInput.put("userID", tableModel.getValueAt(row, 1)); // Use userID
+            jsonInput.put("username", tableModel.getValueAt(row, 5).toString());
+
+            con.setDoOutput(true);
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = jsonInput.toString().getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                statusLabel.setForeground(Color.GREEN);
+                statusLabel.setText("Username actualizat cu succes!");
+            } else {
+                statusLabel.setForeground(Color.RED);
+                statusLabel.setText("Eroare la actualizarea username-ului!");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            statusLabel.setText("Eroare de conexiune!");
+        }
+    }
+
+    private void updateProfessorCourses(int row) {
+        try {
+            String url = "http://localhost:8080/api/update-professor/courses";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("PUT");
+            con.setRequestProperty("Content-Type", "application/json");
+
+            JSONObject jsonInput = new JSONObject();
+            jsonInput.put("jwt", jwt);
+            jsonInput.put("professorID", tableModel.getValueAt(row, 0)); // Use professorID
+            String coursesString = tableModel.getValueAt(row, 6).toString();
+            String[] courses = coursesString.split(",\\s*");
+            jsonInput.put("courses", new JSONArray(courses));
+
+            con.setDoOutput(true);
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = jsonInput.toString().getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                statusLabel.setForeground(Color.GREEN);
+                statusLabel.setText("Materii actualizate cu succes!");
+            } else {
+                statusLabel.setForeground(Color.RED);
+                statusLabel.setText("Eroare la actualizarea materiilor!");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            statusLabel.setText("Eroare de conexiune!");
+        }
+    }
 }

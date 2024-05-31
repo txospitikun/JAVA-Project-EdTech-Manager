@@ -73,23 +73,81 @@
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
 
-        @PutMapping("/edit_professor")
-        public ResponseEntity<String> editProfessor(@RequestBody EditProfessorRequest editProfessorRequest) {
-            int authenticationResponse = EncryptionService.authenticateToken(editProfessorRequest.getJWT());
+
+        @PutMapping("/update-professor/first_name")
+        public ResponseEntity<String> updateProfessorFirstName(@RequestBody EditProfessorFirstNameRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
             if (authenticationResponse == 3) {
-                boolean updateResponse = RecordService.updateProfessor(editProfessorRequest);
+                boolean updateResponse = RecordService.updateProfessorFirstName(request);
                 if (updateResponse) {
-                    System.out.println("Updated professor ID: " + editProfessorRequest.getProfessorID());
                     JSONObject response = new JSONObject();
                     response.put("Response", "successful");
                     return ResponseEntity.ok(response.toString());
-                } else {
-                    return ResponseEntity.status(500).body("Failed to update professor.");
                 }
+                return ResponseEntity.status(500).body("Failed to update first name.");
             }
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
 
+        @PutMapping("/update-professor/last_name")
+        public ResponseEntity<String> updateProfessorLastName(@RequestBody EditProfessorLastNameRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
+            if (authenticationResponse == 3) {
+                boolean updateResponse = RecordService.updateProfessorLastName(request);
+                if (updateResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to update last name.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @PutMapping("/update-professor/rank")
+        public ResponseEntity<String> updateProfessorRank(@RequestBody EditProfessorRankRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
+            if (authenticationResponse == 3) {
+                boolean updateResponse = RecordService.updateProfessorRank(request);
+                if (updateResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to update rank.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @PutMapping("/update-professor/username")
+        public ResponseEntity<String> updateProfessorUsername(@RequestBody EditProfessorUsernameRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
+            if (authenticationResponse == 3) {
+                boolean updateResponse = RecordService.updateProfessorUsername(request);
+                if (updateResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to update username.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @PutMapping("/update-professor/courses")
+        public ResponseEntity<String> updateProfessorCourses(@RequestBody EditProfessorCoursesRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
+            if (authenticationResponse == 3) {
+                boolean updateResponse = RecordService.updateProfessorCourses(request);
+                if (updateResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to update courses.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
         @PostMapping("/create_course")
         public ResponseEntity<String> createCourse(@RequestBody CreateCourseRequest createCourseRequest) {
             int authenticationResponse = EncryptionService.authenticateToken(createCourseRequest.getJWT());
