@@ -1,13 +1,12 @@
 package org.example.proiectjava.service;
 
 import org.example.proiectjava.database.DatabaseConfig;
-import org.example.proiectjava.database.DatabaseConnection;
 import org.example.proiectjava.dto.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONString;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.List;
 
 public class RecordService {
@@ -411,15 +410,17 @@ public class RecordService {
 
     public static int registerStudent(CreateStudentRequest createStudentRequest) {
         int registeredUserID = -1;
-        if ((registeredUserID = AuthService.registerUser(createStudentRequest.getUsername(), EncryptionService.encryptSHA256(createStudentRequest.getPassword()), createStudentRequest.getPrivilege())) == -1) {
+        if ((registeredUserID = AuthService.registerUser(createStudentRequest.getUsername(), EncryptionService.encryptSHA256(createStudentRequest.getPassword()), 1)) == -1) {
             return -1;
         }
+
+        String nrMatricol = generateNrMatricol(registeredUserID);
 
         String query = "INSERT INTO Students (nr_matricol, first_name, last_name, user_id) VALUES (?, ?, ?, ?)";
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
                 PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                preparedStatement.setString(1, createStudentRequest.getNrMatricol());
+                preparedStatement.setString(1, nrMatricol);
                 preparedStatement.setString(2, createStudentRequest.getFirstName());
                 preparedStatement.setString(3, createStudentRequest.getLastName());
                 preparedStatement.setInt(4, registeredUserID);
@@ -428,7 +429,9 @@ public class RecordService {
                 if (affectedRows > 0) {
                     try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
-                            return generatedKeys.getInt(1); // Assuming the generated key is in the first column
+                            int studentId = generatedKeys.getInt(1);
+                            registerStudentYear(new CreateStudentYearRequest(studentId, LocalDate.now().getYear(), extractStudyYearFromGroupName(createStudentRequest.getGroup()), findGroupIdByName(createStudentRequest.getGroup())));
+                            return studentId;
                         }
                     }
                 }
@@ -529,30 +532,55 @@ public class RecordService {
         return false;
     }
 
-    public static int registerStudentYear(CreateStudentYearRequest createStudentYearRequest) {
+    public static int registerStudentYear(CreateStudentYearRequest request) {
         String query = "INSERT INTO StudentYears (id_student, year, study_year, group_id) VALUES (?, ?, ?, ?)";
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
                 PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                preparedStatement.setInt(1, createStudentYearRequest.getStudentId());
-                preparedStatement.setInt(2, createStudentYearRequest.getYear());
-                preparedStatement.setInt(3, createStudentYearRequest.getStudyYear());
-                preparedStatement.setInt(4, createStudentYearRequest.getGroupId());
-
-                int affectedRows = preparedStatement.executeUpdate();
-                if (affectedRows > 0) {
-                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                        if (generatedKeys.next()) {
-                            return generatedKeys.getInt(1); // Assuming the generated key is in the first column
-                        }
-                    }
-                }
+                preparedStatement.setInt(1, request.getStudentId());
+                preparedStatement.setInt(2, request.getYear());
+                preparedStatement.setInt(3, request.getStudyYear());
+                preparedStatement.setInt(4, request.getGroupId());
+                preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
             System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
         }
-        return -1;
+        return 0;
     }
+    public static JSONArray getCurrentYearStudents() {
+        JSONArray studentsArray = new JSONArray();
+        String query = "SELECT s.id AS studentId, u.id AS userId, sy.group_id AS groupId, s.nr_matricol, s.first_name, s.last_name, u.username, g.group_name " +
+                "FROM Students s " +
+                "JOIN Users u ON s.user_id = u.id " +
+                "JOIN StudentYears sy ON s.id = sy.id_student " +
+                "JOIN Groups g ON sy.group_id = g.id " +
+                "WHERE sy.year = EXTRACT(YEAR FROM CURRENT_DATE)::INTEGER";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                JSONObject student = new JSONObject();
+                student.put("studentId", resultSet.getInt("studentId"));
+                student.put("userId", resultSet.getInt("userId"));
+                student.put("groupId", resultSet.getInt("groupId"));
+                student.put("nrMatricol", resultSet.getString("nr_matricol"));
+                student.put("firstName", resultSet.getString("first_name"));
+                student.put("lastName", resultSet.getString("last_name"));
+                student.put("username", resultSet.getString("username"));
+                student.put("group", resultSet.getString("group_name"));
+
+                studentsArray.put(student);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return studentsArray;
+    }
+
 
     public static JSONArray getCoursesByProfessor(int professorId) {
         JSONArray coursesArray = new JSONArray();
@@ -752,7 +780,7 @@ public class RecordService {
 
     public static JSONArray getAllGroups() {
         JSONArray groupsArray = new JSONArray();
-        String query = "SELECT id, group_name FROM Groups";
+        String query = "SELECT id, group_name FROM Groups WHERE year = EXTRACT(YEAR FROM CURRENT_DATE)";
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -769,7 +797,31 @@ public class RecordService {
         }
         return groupsArray;
     }
+    private static int findGroupIdByName(String groupName) {
+        String query = "SELECT id FROM Groups WHERE group_name = ? AND year = EXTRACT(YEAR FROM CURRENT_DATE)";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, groupName);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return -1;
+    }
 
+    private static int extractStudyYearFromGroupName(String groupName) {
+        return Character.getNumericValue(groupName.charAt(0));
+    }
+
+    private static String generateNrMatricol(int userId) {
+        int currentYear = LocalDate.now().getYear();
+        return currentYear + String.format("%04d", userId);
+    }
     public static JSONArray getStudentsByGroup(int groupId) {
         JSONArray studentsArray = new JSONArray();
         String query = "SELECT s.id, s.nr_matricol, s.first_name, s.last_name " +
@@ -841,4 +893,82 @@ public class RecordService {
         }
         return studentInfo;
     }
+    public static boolean updateStudentFirstName(EditStudentFirstNameRequest request) {
+        String query = "UPDATE Students SET first_name = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, request.getFirstName());
+                preparedStatement.setInt(2, request.getStudentId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean updateStudentLastName(EditStudentLastNameRequest request) {
+        String query = "UPDATE Students SET last_name = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, request.getLastName());
+                preparedStatement.setInt(2, request.getStudentId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean updateStudentUsername(EditStudentUsernameRequest request) {
+        String query = "UPDATE Users SET username = ? WHERE id = (SELECT user_id FROM Students WHERE id = ?)";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, request.getUsername());
+                preparedStatement.setInt(2, request.getStudentId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean updateStudentGroup(EditStudentGroupRequest request) {
+        String query = "UPDATE StudentYears SET group_id = ?, study_year = ? WHERE id_student = ? AND year = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                int newGroupId = findGroupIdByName(request.getGroup());
+                if (newGroupId == -1) {
+                    System.err.println("Group not found: " + request.getGroup());
+                    return false;
+                }
+                int newStudyYear = Character.getNumericValue(request.getGroup().charAt(0));
+                int currentYear = LocalDate.now().getYear();
+
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, newGroupId);
+                preparedStatement.setInt(2, newStudyYear);
+                preparedStatement.setInt(3, request.getStudentId());
+                preparedStatement.setInt(4, currentYear);
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
 }

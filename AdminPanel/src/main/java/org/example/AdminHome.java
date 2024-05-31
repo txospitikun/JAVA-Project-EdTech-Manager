@@ -46,8 +46,9 @@ public class AdminHome {
         panel.add(manageStudentsButton);
         manageStudentsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Implementați logica pentru gestionarea elevilor
-            }
+                   new ManageStudents(jwt).setVisible(true);
+                 }
+
         });
 
         JButton manageClassesButton = new JButton("Gestionează Grupe");
