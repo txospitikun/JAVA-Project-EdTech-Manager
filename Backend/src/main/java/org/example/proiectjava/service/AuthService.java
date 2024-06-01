@@ -24,6 +24,7 @@ public class AuthService {
                         if(resultSet.getString("Password").equals(EncryptionService.encryptSHA256(loginRequest.getPassword())))
                         {
                             JSONObject userInfo = new JSONObject();
+                            userInfo.put("ID", resultSet.getInt("ID"));
                             userInfo.put("Username", resultSet.getString("Username"));
                             userInfo.put("Privilege", resultSet.getString("Privilege"));
                             return EncryptionService.generateToken(userInfo.toString());

@@ -18,43 +18,109 @@
     </header>
     <main>
         <h1>Materii</h1>
-        <div class="subject">
-            <h2>Materie 1 <span>Media: 9.5 | Absențe: 2</span></h2>
-            <button onclick="toggleDetails('details1')">Detalii</button>
-            <div class="details" id="details1">
-                <p>Nota 1: 10 (12.01.2024, Prof. X)</p>
-                <p>Nota 2: 9 (15.02.2024, Prof. X)</p>
-                <p>Nota 3: 9.5 (20.03.2024, Prof. X)</p>
-            </div>
-        </div>
-        <div class="subject">
-            <h2>Materie 2 <span>Media: 8.5 | Absențe: 1</span></h2>
-            <button onclick="toggleDetails('details2')">Detalii</button>
-            <div class="details" id="details2">
-                <p>Nota 1: 8 (12.01.2024, Prof. Y)</p>
-                <p>Nota 2: 9 (15.02.2024, Prof. Y)</p>
-                <p>Nota 3: 8.5 (20.03.2024, Prof. Y)</p>
-            </div>
-        </div>
-        <div class="subject">
-            <h2>Materie 3 <span>Media: 9.0 | Absențe: 0</span></h2>
-            <button onclick="toggleDetails('details3')">Detalii</button>
-            <div class="details" id="details3">
-                <p>Nota 1: 9 (12.01.2024, Prof. Z)</p>
-                <p>Nota 2: 9 (15.02.2024, Prof. Z)</p>
-                <p>Nota 3: 9 (20.03.2024, Prof. Z)</p>
-            </div>
+        <div id="subjects-container">
+            <!-- Subjects will be loaded here -->
         </div>
     </main>
     <script>
-        function toggleDetails(id) {
-            var element = document.getElementById(id);
-            if (element.style.display === "none" || element.style.display === "") {
-                element.style.display = "block";
-            } else {
-                element.style.display = "none";
+        document.addEventListener("DOMContentLoaded", function () {
+            const jwt = getCookie("jwt");
+            if (!jwt) {
+                window.location.href = "/login.html";
+                return;
             }
-        }
+
+            fetch('http://localhost:8080/api/get_student_info', {
+                method: "GET",
+                headers: {
+                    "Authorization": jwt
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadGrades(data.nrMatricol, jwt);
+            })
+            .catch(error => console.error("Error fetching student info:", error));
+
+            function loadGrades(nrMatricol, jwt) {
+                fetch(`http://localhost:8080/api/get_grades?nrMatricol=${nrMatricol}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": jwt
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    displaySubjects(data.grades);
+                })
+                .catch(error => console.error("Error fetching grades:", error));
+            }
+
+            function displaySubjects(grades) {
+                const subjectsContainer = document.getElementById('subjects-container');
+                subjectsContainer.innerHTML = '';
+
+                const subjects = {};
+
+                grades.forEach(grade => {
+                    if (!subjects[grade.courseTitle]) {
+                        subjects[grade.courseTitle] = {
+                            grades: [],
+                            absences: 0,
+                            totalGrades: 0,
+                            gradesCount: 0
+                        };
+                    }
+
+                    if (grade.value >= 0 && grade.value <= 10) {
+                        subjects[grade.courseTitle].totalGrades += grade.value;
+                        subjects[grade.courseTitle].gradesCount++;
+                    } else if (grade.value === -1) {
+                        subjects[grade.courseTitle].absences++;
+                    }
+
+                    subjects[grade.courseTitle].grades.push(grade);
+                });
+
+                for (const [courseTitle, subjectData] of Object.entries(subjects)) {
+                    const averageGrade = subjectData.gradesCount > 0 ? (subjectData.totalGrades / subjectData.gradesCount).toFixed(2) : "N/A";
+                    const absences = subjectData.absences;
+
+                    const subjectDiv = document.createElement('div');
+                    subjectDiv.classList.add('subject');
+
+                    subjectDiv.innerHTML = `
+                        <h2>${courseTitle} <span>Media: ${averageGrade} | Absențe: ${absences}</span></h2>
+                        <button onclick="toggleDetails('${courseTitle.replace(/\s+/g, '_')}')">Detalii</button>
+                        <div class="details" id="${courseTitle.replace(/\s+/g, '_')}" style="display: none;">
+                            ${subjectData.grades.map(grade => `
+                                <p>Nota: ${grade.value} (${new Date(grade.notationDate).toLocaleDateString()}, Prof. X)</p>
+                            `).join('')}
+                        </div>
+                    `;
+
+                    subjectsContainer.appendChild(subjectDiv);
+                }
+            }
+
+            function toggleDetails(id) {
+                var element = document.getElementById(id);
+                if (element.style.display === "none" || element.style.display === "") {
+                    element.style.display = "block";
+                } else {
+                    element.style.display = "none";
+                }
+            }
+
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(";").shift();
+            }
+
+            // Expose toggleDetails globally
+            window.toggleDetails = toggleDetails;
+        });
     </script>
 </body>
 </html>
