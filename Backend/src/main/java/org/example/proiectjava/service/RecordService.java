@@ -720,14 +720,15 @@ public class RecordService {
     }
 
     public static int addGrade(AddGradeRequest addGradeRequest) {
-        String query = "INSERT INTO Grades (nr_matricol, id_course, value, notation_date) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO Grades (nr_matricol, id_prof, id_course, value, notation_date) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
                 PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 preparedStatement.setString(1, addGradeRequest.getNrMatricol());
-                preparedStatement.setInt(2, addGradeRequest.getIdCourse());
-                preparedStatement.setInt(3, addGradeRequest.getValue());
-                preparedStatement.setDate(4, new java.sql.Date(addGradeRequest.getNotationDate().getTime()));
+                preparedStatement.setInt(2, RecordService.getProfessorIdByUserId(EncryptionService.getUserIDFromToken(addGradeRequest.getJWT())));
+                preparedStatement.setInt(3, addGradeRequest.getIdCourse());
+                preparedStatement.setInt(4, addGradeRequest.getValue());
+                preparedStatement.setDate(5, new java.sql.Date(addGradeRequest.getNotationDate().getTime()));
 
                 int affectedRows = preparedStatement.executeUpdate();
                 if (affectedRows > 0) {
@@ -802,9 +803,11 @@ public class RecordService {
 
     public static JSONArray getGradesByNrMatricol(String nrMatricol) {
         JSONArray gradesArray = new JSONArray();
-        String query = "SELECT g.id, g.nr_matricol, g.id_course, g.value, g.notation_date, c.course_title " +
+        String query = "SELECT g.id, g.nr_matricol, g.id_course, g.value, g.notation_date, c.course_title, " +
+                "p.first_name AS professor_first_name, p.last_name AS professor_last_name " +
                 "FROM Grades g " +
                 "JOIN Courses c ON g.id_course = c.id " +
+                "JOIN Professors p ON g.id_prof = p.id " +
                 "WHERE g.nr_matricol = ?";
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
@@ -819,6 +822,8 @@ public class RecordService {
                     grade.put("value", rs.getInt("value"));
                     grade.put("notationDate", rs.getDate("notation_date"));
                     grade.put("courseTitle", rs.getString("course_title"));
+                    grade.put("professorFirstName", rs.getString("professor_first_name"));
+                    grade.put("professorLastName", rs.getString("professor_last_name"));
                     gradesArray.put(grade);
                 }
             }
@@ -827,6 +832,7 @@ public class RecordService {
         }
         return gradesArray;
     }
+
 
     public static JSONArray getAllGroups() {
         JSONArray groupsArray = new JSONArray();
@@ -1041,7 +1047,7 @@ public class RecordService {
 
     public static JSONArray getAllAnnouncements() {
         JSONArray announcementsArray = new JSONArray();
-        String query = "SELECT id, announcement_title, announcement_content, upload_date FROM Announcements";
+        String query = "SELECT id, announcement_title, announcement_content, upload_date FROM Announcements ORDER BY id DESC";
 
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -1093,6 +1099,24 @@ public class RecordService {
             e.printStackTrace();
         }
         return false;
+    }
+
+
+    public static int getProfessorIdByUserId(int userId) {
+        String query = "SELECT id FROM Professors WHERE user_id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, userId);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
 

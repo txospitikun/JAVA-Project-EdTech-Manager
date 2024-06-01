@@ -94,7 +94,7 @@
                         <button onclick="toggleDetails('${courseTitle.replace(/\s+/g, '_')}')">Detalii</button>
                         <div class="details" id="${courseTitle.replace(/\s+/g, '_')}" style="display: none;">
                             ${subjectData.grades.map(grade => `
-                                <p>Nota: ${grade.value} (${new Date(grade.notationDate).toLocaleDateString()}, Prof. X)</p>
+                                <p>${grade.value === -1 ? 'Absence' : 'Nota'}: ${grade.value === -1 ? '' : grade.value} (${new Date(grade.notationDate).toLocaleDateString()}, Prof. ${grade.professorFirstName} ${grade.professorLastName})</p>
                             `).join('')}
                         </div>
                     `;

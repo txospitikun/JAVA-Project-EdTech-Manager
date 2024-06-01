@@ -9,6 +9,8 @@ public class AddGradeRequest {
     private int value;
     private Date notationDate;
 
+    private int id_prof;
+
     // Getters and setters
     public String getJWT() { return JWT; }
     public void setJWT(String JWT) { this.JWT = JWT; }
@@ -24,4 +26,9 @@ public class AddGradeRequest {
 
     public Date getNotationDate() { return notationDate; }
     public void setNotationDate(Date notationDate) { this.notationDate = notationDate; }
+
+    public int getId_prof()
+    {
+        return this.id_prof;
+    }
 }
