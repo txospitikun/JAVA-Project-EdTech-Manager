@@ -56,7 +56,7 @@ public class AdminHome {
         panel.add(manageClassesButton);
         manageClassesButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Implementați logica pentru gestionarea grupelor
+                new ManageClasses(jwt).setVisible(true);
             }
         });
 
