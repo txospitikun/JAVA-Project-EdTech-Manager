@@ -1,8 +1,6 @@
 package org.example;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,8 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,7 +18,6 @@ public class ManageClasses extends JFrame {
     private JPanel coursesPanel;
     private JComboBox<String> groupComboBox;
     private JLabel statusLabel;
-    private JButton confirmButton;
 
     public ManageClasses(String jwt) {
         this.jwt = jwt;
@@ -91,14 +86,6 @@ public class ManageClasses extends JFrame {
                 createGroup(groupNameField.getText());
             }
         });
-
-        confirmButton = new JButton("Confirmă Modificările");
-        confirmButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                confirmChanges();
-            }
-        });
-        panel.add(confirmButton, BorderLayout.SOUTH);
 
         loadGroups();
     }
@@ -376,142 +363,4 @@ public class ManageClasses extends JFrame {
         }
         return -1;
     }
-
-    private void confirmChanges() {
-        try {
-            String selectedGroup = (String) groupComboBox.getSelectedItem();
-            if (selectedGroup == null) {
-                statusLabel.setForeground(Color.RED);
-                statusLabel.setText("Nicio grupă selectată!");
-                return;
-            }
-
-            int groupId = findGroupIdByName(selectedGroup);
-            if (groupId == -1) {
-                statusLabel.setForeground(Color.RED);
-                statusLabel.setText("Grupă invalidă!");
-                return;
-            }
-
-            JSONArray groupProfessorLinks = new JSONArray();
-
-            for (Component comp : coursesPanel.getComponents()) {
-                if (comp instanceof JPanel) {
-                    JPanel coursePanel = (JPanel) comp;
-                    Border border = coursePanel.getBorder();
-                    String courseTitle = border instanceof TitledBorder ? ((TitledBorder) border).getTitle() : null;
-                    if (courseTitle != null) {
-                        int courseId = findCourseIdByName(courseTitle);
-                        if (courseId != -1) {
-                            JComboBox<String> professorComboBox = (JComboBox<String>) coursePanel.getComponent(1);
-                            String professorName = (String) professorComboBox.getSelectedItem();
-                            int professorId = findProfessorIdByName(professorName);
-
-                            JSONObject link = new JSONObject();
-                            link.put("profId", professorId);
-                            link.put("courseId", courseId);
-                            link.put("groupId", groupId);
-                            groupProfessorLinks.put(link);
-                        }
-                    }
-                }
-            }
-
-            String url = "http://localhost:8080/api/update_group_professors";
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Content-Type", "application/json");
-
-            JSONObject jsonInput = new JSONObject();
-            jsonInput.put("jwt", jwt);
-            jsonInput.put("groupProfessorLinks", groupProfessorLinks);
-
-            con.setDoOutput(true);
-            try (OutputStream os = con.getOutputStream()) {
-                byte[] input = jsonInput.toString().getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = con.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                statusLabel.setForeground(Color.GREEN);
-                statusLabel.setText("Modificările au fost confirmate!");
-            } else if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                statusLabel.setForeground(Color.RED);
-                statusLabel.setText("JWT invalid!");
-            } else {
-                statusLabel.setForeground(Color.RED);
-                statusLabel.setText("Eroare la confirmarea modificărilor!");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            statusLabel.setText("Eroare de conexiune!");
-        }
-    }
-
-    private int findCourseIdByName(String courseTitle) {
-        try {
-            String url = "http://localhost:8080/api/find_course_id_by_name?courseTitle=" + URLEncoder.encode(courseTitle, "UTF-8");
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-            con.setRequestMethod("GET");
-            con.setRequestProperty("Authorization", jwt);
-
-            int responseCode = con.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                JSONObject jsonResponse = new JSONObject(response.toString());
-                return jsonResponse.getInt("courseId");
-            } else {
-                statusLabel.setForeground(Color.RED);
-                statusLabel.setText("Eroare la găsirea ID-ului cursului!");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            statusLabel.setText("Eroare de conexiune!");
-        }
-        return -1;
-    }
-
-    private int findProfessorIdByName(String professorName) {
-        try {
-            String url = "http://localhost:8080/api/find_professor_id_by_name?professorName=" + URLEncoder.encode(professorName, "UTF-8");
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-            con.setRequestMethod("GET");
-            con.setRequestProperty("Authorization", jwt);
-
-            int responseCode = con.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                JSONObject jsonResponse = new JSONObject(response.toString());
-                return jsonResponse.getInt("professorId");
-            } else {
-                statusLabel.setForeground(Color.RED);
-                statusLabel.setText("Eroare la găsirea ID-ului profesorului!");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            statusLabel.setText("Eroare de conexiune!");
-        }
-        return -1;
-    }
-
 }

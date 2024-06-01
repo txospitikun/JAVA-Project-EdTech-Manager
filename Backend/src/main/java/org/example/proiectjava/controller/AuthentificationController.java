@@ -119,6 +119,7 @@
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
 
+
         @PutMapping("/update-professor/username")
         public ResponseEntity<String> updateProfessorUsername(@RequestBody EditProfessorUsernameRequest request) {
             int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
@@ -291,21 +292,6 @@
 
     // Group endpoints
 
-        @PostMapping("/create_group")
-        public ResponseEntity<String> createGroup(@RequestBody CreateGroupRequest createGroupRequest) {
-            int authenticationResponse = EncryptionService.authenticateToken(createGroupRequest.getJWT());
-            if (authenticationResponse == 3) {
-                int groupId = RecordService.registerGroup(createGroupRequest);
-                if (groupId != -1) {
-                    JSONObject response = new JSONObject();
-                    response.put("Response", "successful");
-                    response.put("groupId", groupId);
-                    return ResponseEntity.ok(response.toString());
-                }
-                return ResponseEntity.status(500).body("Failed to create group.");
-            }
-            return ResponseEntity.status(401).body("Invalid JWT.");
-        }
 
         @PutMapping("/edit_group")
         public ResponseEntity<String> editGroup(@RequestBody EditGroupRequest editGroupRequest) {
@@ -476,17 +462,7 @@
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
 
-        @GetMapping("/get_groups")
-        public ResponseEntity<String> getGroups(@RequestHeader("Authorization") String token) {
-            int authenticationResponse = EncryptionService.authenticateToken(token);
-            if (authenticationResponse == 3 || authenticationResponse == 2) {
-                JSONArray groupsArray = RecordService.getAllGroups();
-                JSONObject response = new JSONObject();
-                response.put("groups", groupsArray);
-                return ResponseEntity.ok(response.toString());
-            }
-            return ResponseEntity.status(401).body("Invalid JWT.");
-        }
+
 
         @GetMapping("/get_students_by_group")
         public ResponseEntity<String> getStudentsByGroup(@RequestParam int groupId, @RequestHeader("Authorization") String token) {
@@ -641,5 +617,99 @@
             }
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
+        @PostMapping("/create_group")
+        public ResponseEntity<String> createGroup(@RequestBody CreateGroupRequest createGroupRequest) {
+            int authenticationResponse = EncryptionService.authenticateToken(createGroupRequest.getJwt());
+            if (authenticationResponse == 3) {
+                int groupId = RecordService.registerGroup(createGroupRequest);
+                if (groupId != -1) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    response.put("groupId", groupId);
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to create group.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
 
+        @GetMapping("/get_groups")
+        public ResponseEntity<String> getGroups(@RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                JSONArray groupsArray = RecordService.getAllGroups();
+                JSONObject response = new JSONObject();
+                response.put("groups", groupsArray);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/get_courses_for_year")
+        public ResponseEntity<String> getCoursesForYear(@RequestParam int year, @RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                JSONArray coursesArray = RecordService.getCoursesForYear(year);
+                JSONObject response = new JSONObject();
+                response.put("courses", coursesArray);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/get_group_course_professors")
+        public ResponseEntity<String> getGroupCourseProfessors(@RequestParam int groupId, @RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                JSONArray groupCourseProfessors = RecordService.getGroupCourseProfessors(groupId);
+                JSONObject response = new JSONObject();
+                response.put("groupCourseProfessors", groupCourseProfessors);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/get_professor_by_id")
+        public ResponseEntity<String> getProfessorById(@RequestParam int profId, @RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                String professorName = RecordService.getProfessorNameById(profId);
+                if (professorName != null) {
+                    JSONObject response = new JSONObject();
+                    response.put("professorName", professorName);
+                    return ResponseEntity.ok(response.toString());
+                } else {
+                    return ResponseEntity.status(404).body("Professor not found.");
+                }
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/get_professors_for_course")
+        public ResponseEntity<String> getProfessorsForCourse(@RequestParam int courseId, @RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2) {
+                JSONArray professorsArray = RecordService.getProfessorsForCourse(courseId);
+                JSONObject response = new JSONObject();
+                response.put("professors", professorsArray);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/find_group_id_by_name")
+        public ResponseEntity<String> findGroupIdByName(@RequestParam String name, @RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3) {
+                int groupId = RecordService.findGroupIdByName(name);
+                if (groupId != -1) {
+                    JSONObject response = new JSONObject();
+                    response.put("groupId", groupId);
+                    return ResponseEntity.ok(response.toString());
+                } else {
+                    return ResponseEntity.status(404).body("Group not found.");
+                }
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
     }

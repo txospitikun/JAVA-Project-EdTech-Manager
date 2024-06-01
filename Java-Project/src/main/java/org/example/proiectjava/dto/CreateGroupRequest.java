@@ -5,7 +5,7 @@ public class CreateGroupRequest {
     private String groupName;
 
     // Getters and setters
-    public String getJwt() { return JWT; }
+    public String getJWT() { return JWT; }
     public void setJWT(String JWT) { this.JWT = JWT; }
 
     public String getGroupName() { return groupName; }

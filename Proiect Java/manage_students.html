@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Gestionează Elevi</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="home_admin.html">Home</a>
+            <a href="manage_teachers.html">Gestionează Profesori</a>
+            <a href="manage_students.html">Gestionează Elevi</a>
+            <a href="manage_classes.html">Gestionează Grupe</a>
+            <a href="manage_schedule.html">Gestionează Orar</a>
+            <a href="manage_announcements.html">Gestionează Anunțuri</a>
+            <a href="/login.html">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Gestionează Elevi</h1>
+        <form action="/submit_student" method="post">
+            <div class="form-group">
+                <label for="student-name">Nume:</label>
+                <input type="text" id="student-name" name="student-name" required>
+            </div>
+            <div class="form-group">
+                <label for="student-group">Grupă:</label>
+                <input type="text" id="student-group" name="student-group" required>
+            </div>
+            <div class="form-group">
+                <label for="student-username">Nume utilizator:</label>
+                <input type="text" id="student-username" name="student-username" required>
+            </div>
+            <div class="form-group">
+                <label for="student-password">Parolă:</label>
+                <input type="password" id="student-password" name="student-password" required>
+            </div>
+            <button type="submit">Creează/Editează Elev</button>
+        </form>
+
+        <h2>Lista Elevilor</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nume</th>
+                    <th>Grupă</th>
+                    <th>Nume Utilizator</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Student 1</td>
+                    <td>10A</td>
+                    <td>student1</td>
+                    <td>
+                        <button onclick="editStudent(this)">Edit</button>
+                        <button onclick="deleteStudent(this)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+    <footer>
+        <p>&copy; 2024 Școala XYZ</p>
+    </footer>
+    <script>
+        function editStudent(button) {
+            // Logica pentru editarea unui elev
+            const row = button.parentNode.parentNode;
+            const cells = row.querySelectorAll('td');
+            cells[0].innerHTML = `<input type="text" value="${cells[0].innerText}">`;
+            cells[1].innerHTML = `<input type="text" value="${cells[1].innerText}">`;
+            cells[2].innerHTML = `<input type="text" value="${cells[2].innerText}">`;
+            button.innerText = 'Save';
+            button.onclick = () => saveStudent(button);
+        }
+
+        function saveStudent(button) {
+            // Logica pentru salvarea unui elev editat
+            const row = button.parentNode.parentNode;
+            const inputs = row.querySelectorAll('input');
+            row.querySelectorAll('td')[0].innerText = inputs[0].value;
+            row.querySelectorAll('td')[1].innerText = inputs[1].value;
+            row.querySelectorAll('td')[2].innerText = inputs[2].value;
+            button.innerText = 'Edit';
+            button.onclick = () => editStudent(button);
+        }
+
+        function deleteStudent(button) {
+            // Logica pentru stergerea unui elev
+            if (confirm('Sigur doriți să ștergeți acest elev?')) {
+                const row = button.parentNode.parentNode;
+                row.parentNode.removeChild(row);
+            }
+        }
+    </script>
+</body>
+</html>

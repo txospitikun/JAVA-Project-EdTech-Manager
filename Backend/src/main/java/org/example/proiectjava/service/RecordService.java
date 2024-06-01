@@ -100,6 +100,58 @@ public class RecordService {
     }
 
 
+    public static int getCourseIdByName(String courseTitle) {
+        String query = "SELECT id FROM Courses WHERE course_title = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, courseTitle);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    public static int getProfessorIdByName(String professorName) {
+        String query = "SELECT id FROM Professors WHERE CONCAT(first_name, ' ', last_name) = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, professorName);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    public static boolean saveGroupProfessorLink(List<SaveGroupProfessorLinkRequest> requests) {
+        String query = "INSERT INTO GroupProfessorLink (prof_id, course_id, group_id) VALUES (?, ?, ?)";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                for (SaveGroupProfessorLinkRequest request : requests) {
+                    PreparedStatement preparedStatement = connection.prepareStatement(query);
+                    preparedStatement.setInt(1, request.getProfessorId());
+                    preparedStatement.setInt(2, request.getCourseId());
+                    preparedStatement.setInt(3, request.getGroupId());
+                    preparedStatement.executeUpdate();
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
     public static JSONArray getAllProfessors() {
         JSONArray professorsArray = new JSONArray();
         String query = "SELECT p.id, p.first_name, p.last_name, p.rank, u.id AS user_id, u.username, " +
@@ -527,27 +579,7 @@ public class RecordService {
         return false;
     }
 
-    public static int registerGroup(CreateGroupRequest createGroupRequest) {
-        String query = "INSERT INTO Groups (group_name) VALUES (?)";
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            if (connection != null) {
-                PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                preparedStatement.setString(1, createGroupRequest.getGroupName());
 
-                int affectedRows = preparedStatement.executeUpdate();
-                if (affectedRows > 0) {
-                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                        if (generatedKeys.next()) {
-                            return generatedKeys.getInt(1);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
-        }
-        return -1;
-    }
 
     public static boolean updateGroup(EditGroupRequest editGroupRequest) {
         String query = "UPDATE Groups SET group_name = ? WHERE id = ?";
@@ -853,22 +885,7 @@ public class RecordService {
         }
         return groupsArray;
     }
-    private static int findGroupIdByName(String groupName) {
-        String query = "SELECT id FROM Groups WHERE group_name = ? AND year = EXTRACT(YEAR FROM CURRENT_DATE)";
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            if (connection != null) {
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
-                preparedStatement.setString(1, groupName);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                if (resultSet.next()) {
-                    return resultSet.getInt("id");
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
-        }
-        return -1;
-    }
+
 
     private static int extractStudyYearFromGroupName(String groupName) {
         return Character.getNumericValue(groupName.charAt(0));
@@ -1119,5 +1136,130 @@ public class RecordService {
         return -1;
     }
 
+    public static int registerGroup(CreateGroupRequest createGroupRequest) {
+        String query = "INSERT INTO Groups (group_name) VALUES (?)";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                preparedStatement.setString(1, createGroupRequest.getGroupName());
 
+                int affectedRows = preparedStatement.executeUpdate();
+                if (affectedRows > 0) {
+                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            return generatedKeys.getInt(1);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return -1;
+    }
+
+
+
+    public static JSONArray getCoursesForYear(int year) {
+        JSONArray coursesArray = new JSONArray();
+        String query = "SELECT id, course_title FROM Courses WHERE year = ?";
+
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, year);
+                ResultSet rs = preparedStatement.executeQuery();
+                while (rs.next()) {
+                    JSONObject course = new JSONObject();
+                    course.put("id", rs.getInt("id"));
+                    course.put("courseTitle", rs.getString("course_title"));
+                    coursesArray.put(course);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return coursesArray;
+    }
+
+    public static JSONArray getGroupCourseProfessors(int groupId) {
+        JSONArray groupCourseProfessors = new JSONArray();
+        String query = "SELECT course_id, prof_id FROM GroupProfessorLink WHERE group_id = ?";
+
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, groupId);
+                ResultSet rs = preparedStatement.executeQuery();
+                while (rs.next()) {
+                    JSONObject groupCourseProfessor = new JSONObject();
+                    groupCourseProfessor.put("courseId", rs.getInt("course_id"));
+                    groupCourseProfessor.put("profId", rs.getInt("prof_id"));
+                    groupCourseProfessors.put(groupCourseProfessor);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return groupCourseProfessors;
+    }
+
+    public static String getProfessorNameById(int profId) {
+        String query = "SELECT first_name, last_name FROM Professors WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, profId);
+                ResultSet rs = preparedStatement.executeQuery();
+                if (rs.next()) {
+                    return rs.getString("first_name") + " " + rs.getString("last_name");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static JSONArray getProfessorsForCourse(int courseId) {
+        JSONArray professorsArray = new JSONArray();
+        String query = "SELECT p.id, CONCAT(p.first_name, ' ', p.last_name) AS name " +
+                "FROM Professors p " +
+                "JOIN Didactic d ON p.id = d.id_professor " +
+                "WHERE d.id_course = ?";
+
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, courseId);
+                ResultSet rs = preparedStatement.executeQuery();
+                while (rs.next()) {
+                    JSONObject professor = new JSONObject();
+                    professor.put("id", rs.getInt("id"));
+                    professor.put("name", rs.getString("name"));
+                    professorsArray.put(professor);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return professorsArray;
+    }
+
+    public static int findGroupIdByName(String groupName) {
+        String query = "SELECT id FROM Groups WHERE group_name = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, groupName);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return -1;
+    }
 }
