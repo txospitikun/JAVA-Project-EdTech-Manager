@@ -4,15 +4,15 @@ java:S1604&"(Make this anonymous inner class a lambda(Â£ÃÊıÿÿÿÿ
 >
 java:S1604/"(Make this anonymous inner class a lambda(õŒØ“
 C
-java:S16048"(Make this anonymous inner class a lambda(¥ÇõŠúÿÿÿÿ
+java:S16049"(Make this anonymous inner class a lambda(¥ÇõŠúÿÿÿÿ
 >
-java:S1604A"(Make this anonymous inner class a lambda(¾¡
+java:S1604B"(Make this anonymous inner class a lambda(¾¡
 >
-java:S1604J"(Make this anonymous inner class a lambda(·Â â
+java:S1604K"(Make this anonymous inner class a lambda(·Â â
 >
-java:S1604S"(Make this anonymous inner class a lambda(­”Ü²
+java:S1604T"(Make this anonymous inner class a lambda(­”Ü²
 C
-java:S1604\"(Make this anonymous inner class a lambda(Ô¶µÿşÿÿÿÿ
+java:S1604]"(Make this anonymous inner class a lambda(Ô¶µÿşÿÿÿÿ
 ;
 java:S3010" Remove this assignment of "jwt".(Áì›àÿÿÿÿÿ
 =
@@ -22,4 +22,4 @@ java:S2209"5Change this instance-reference to a static reference.(Áì›àÿÿÿÿÿ
 _
 java:S3252"IUse static access with "javax.swing.WindowConstants" for "EXIT_ON_CLOSE".(¢¡´
 D
-java:S2440^")Remove this instantiation of "AdminHome".(õ Ïùÿÿÿÿ
+java:S2440_")Remove this instantiation of "AdminHome".(õ Ïùÿÿÿÿ

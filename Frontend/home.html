@@ -19,7 +19,6 @@
     <main>
         <h1>Bine ai venit, <span id="student-name">[Nume Student]</span></h1>
         <div class="student-info">
-            <p><strong>Școala:</strong> [Numele Școlii]</p>
             <p><strong>Nume complet:</strong> <span id="full-name">[Nume Complet]</span></p>
             <p><strong>Grup:</strong> <span id="group">[Clasa]</span></p>
             <p><strong>Media Generală:</strong> <span id="average-grade">[Media Generală]</span></p>
@@ -61,16 +60,16 @@
                     }
                 })
                 .then(response => response.json())
-                .then(grades => {
+                .then(data => {
                     let totalGrades = 0;
                     let gradesCount = 0;
                     let absencesCount = 0;
 
-                    grades.forEach(grade => {
-                        if (grade.value !== -1) {
+                    data.grades.forEach(grade => {
+                        if (grade.value >= 0 && grade.value <= 10) {
                             totalGrades += grade.value;
                             gradesCount++;
-                        } else {
+                        } else if (grade.value === -1) {
                             absencesCount++;
                         }
                     });

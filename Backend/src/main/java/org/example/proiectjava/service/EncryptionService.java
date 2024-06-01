@@ -21,10 +21,12 @@ public class EncryptionService {
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
 
         JSONObject parsedUserInfo = new JSONObject(UserInfo);
+        System.out.println(parsedUserInfo);
 
         return Jwts.builder()
                 .setSubject(parsedUserInfo.getString("Username"))
                 .claim("privilege", parsedUserInfo.getString("Privilege"))
+                .claim("id", parsedUserInfo.getInt("ID"))
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
@@ -58,6 +60,21 @@ public class EncryptionService {
 
         } catch (Exception e) {
             return "";
+        }
+    }
+
+    public static int getUserIDFromToken(String token)
+    {
+        try {
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token);
+
+            return claims.getBody().get("id", Integer.class);
+
+        } catch (Exception e) {
+            return -1;
         }
     }
 

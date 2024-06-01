@@ -417,7 +417,7 @@
         @GetMapping("/get_grades")
         public ResponseEntity<String> getGrades(@RequestParam String nrMatricol, @RequestHeader("Authorization") String token) {
             int authenticationResponse = EncryptionService.authenticateToken(token);
-            if (authenticationResponse == 3 || authenticationResponse == 2) {
+            if (authenticationResponse == 3 || authenticationResponse == 2 || authenticationResponse == 1) {
                 JSONArray gradesArray = RecordService.getGradesByNrMatricol(nrMatricol);
                 JSONObject response = new JSONObject();
                 response.put("grades", gradesArray);
@@ -457,7 +457,7 @@
                 return ResponseEntity.status(401).body("Invalid JWT.");
             }
 
-            JSONObject studentInfo = RecordService.getStudentInfoByUserId(authenticationResponse);
+            JSONObject studentInfo = RecordService.getStudentInfoByUserId(EncryptionService.getUserIDFromToken(token));
             if (studentInfo != null) {
                 return ResponseEntity.ok(studentInfo.toString());
             } else {
