@@ -121,6 +121,14 @@ CREATE TABLE Students (
     FOREIGN KEY (USER_ID) REFERENCES Users(ID)
 );
 
+CREATE TABLE GroupProfessorLink (
+    id SERIAL NOT NULL,
+    prof_id INTEGER NOT NULL,
+    course_id INTEGER NOT NULL,
+    group_id INTEGER NOT NULL,
+    CONSTRAINT example_table_pkey PRIMARY KEY (id),
+    CONSTRAINT prof_course_group_unique UNIQUE (prof_id, course_id, group_id)
+);
 
 
 CREATE TABLE StudentYears (
