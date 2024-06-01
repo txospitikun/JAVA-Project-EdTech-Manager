@@ -359,7 +359,7 @@
         @PostMapping("/add_grade")
         public ResponseEntity<String> addGrade(@RequestBody AddGradeRequest addGradeRequest) {
             int authenticationResponse = EncryptionService.authenticateToken(addGradeRequest.getJWT());
-            if (authenticationResponse == 3 || authenticationResponse == 2) {
+            if (authenticationResponse == 3 || authenticationResponse == 2 || authenticationResponse == 1) {
                 int gradeId = RecordService.addGrade(addGradeRequest);
                 if (gradeId != -1) {
                     JSONObject response = new JSONObject();
@@ -555,7 +555,7 @@
         @GetMapping("/get_announcements")
         public ResponseEntity<String> getAnnouncements(@RequestHeader("Authorization") String token) {
             int authenticationResponse = EncryptionService.authenticateToken(token);
-            if (authenticationResponse == 3) {
+            if (authenticationResponse == 3 || authenticationResponse == 2 || authenticationResponse == 1) {
                 JSONArray announcementsArray = RecordService.getAllAnnouncements();
                 JSONObject response = new JSONObject();
                 response.put("announcements", announcementsArray);
