@@ -150,7 +150,7 @@
         }
         @PostMapping("/create_course")
         public ResponseEntity<String> createCourse(@RequestBody CreateCourseRequest createCourseRequest) {
-            int authenticationResponse = EncryptionService.authenticateToken(createCourseRequest.getJWT());
+            int authenticationResponse = EncryptionService.authenticateToken(createCourseRequest.getJwt());
             if (authenticationResponse == 3) {
                 int courseId = RecordService.registerCourse(createCourseRequest);
                 if (courseId != -1) {
@@ -164,20 +164,68 @@
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
 
-        @PutMapping("/edit_course")
-        public ResponseEntity<String> editCourse(@RequestBody EditCourseRequest editCourseRequest) {
-            int authenticationResponse = EncryptionService.authenticateToken(editCourseRequest.getJWT());
+
+        @PutMapping("/update_course/title")
+        public ResponseEntity<String> updateCourseTitle(@RequestBody EditCourseTitleRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
             if (authenticationResponse == 3) {
-                boolean updateResponse = RecordService.updateCourse(editCourseRequest);
+                boolean updateResponse = RecordService.updateCourseTitle(request);
                 if (updateResponse) {
                     JSONObject response = new JSONObject();
                     response.put("Response", "successful");
                     return ResponseEntity.ok(response.toString());
                 }
-                return ResponseEntity.status(500).body("Failed to update course.");
+                return ResponseEntity.status(500).body("Failed to update course title.");
             }
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
+
+        @PutMapping("/update_course/year")
+        public ResponseEntity<String> updateCourseYear(@RequestBody EditCourseYearRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
+            if (authenticationResponse == 3) {
+                boolean updateResponse = RecordService.updateCourseYear(request);
+                if (updateResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to update course year.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @PutMapping("/update_course/semester")
+        public ResponseEntity<String> updateCourseSemester(@RequestBody EditCourseSemesterRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
+            if (authenticationResponse == 3) {
+                boolean updateResponse = RecordService.updateCourseSemester(request);
+                if (updateResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to update course semester.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @PutMapping("/update_course/credits")
+        public ResponseEntity<String> updateCourseCredits(@RequestBody EditCourseCreditsRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
+            if (authenticationResponse == 3) {
+                boolean updateResponse = RecordService.updateCourseCredits(request);
+                if (updateResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to update course credits.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+
 
         @DeleteMapping("/delete_course")
         public ResponseEntity<String> deleteCourse(@RequestHeader("Authorization") String token, @RequestParam int courseId) {
@@ -193,6 +241,7 @@
             }
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
+
 
         @PostMapping("/create_student")
         public ResponseEntity<String> createStudent(@RequestBody CreateStudentRequest createStudentRequest) {
@@ -355,6 +404,7 @@
             }
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
+
 
         @PostMapping("/add_grade")
         public ResponseEntity<String> addGrade(@RequestBody AddGradeRequest addGradeRequest) {

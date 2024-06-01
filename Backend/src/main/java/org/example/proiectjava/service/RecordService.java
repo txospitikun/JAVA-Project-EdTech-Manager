@@ -13,7 +13,7 @@ public class RecordService {
     public static int registerProfessor(CreateProfessorRequest createProfessorRequest)
     {
         int registeredUserID = -1;
-        if((registeredUserID = AuthService.registerUser(createProfessorRequest.getUsername(), createProfessorRequest.getPassword(), 2)) == -1)
+        if((registeredUserID = AuthService.registerUser(createProfessorRequest.getUsername(), EncryptionService.encryptSHA256(createProfessorRequest.getPassword()), 2)) == -1)
         {
             return -1;
         }
@@ -327,7 +327,7 @@ public class RecordService {
     }
     public static JSONArray getAllCourses() {
         JSONArray coursesArray = new JSONArray();
-        String query = "SELECT * FROM Courses";
+        String query = "SELECT * FROM Courses ORDER BY YEAR, SEMESTER ASC";
 
         try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement();
@@ -335,10 +335,11 @@ public class RecordService {
 
             while (rs.next()) {
                 JSONObject course = new JSONObject();
-                course.put("courseId", rs.getInt("ID"));
+                course.put("id", rs.getInt("ID")); // Adăugăm ID-ul în răspuns
                 course.put("courseTitle", rs.getString("COURSE_TITLE"));
                 course.put("year", rs.getInt("YEAR"));
                 course.put("semester", rs.getInt("SEMESTER"));
+                course.put("credits", rs.getInt("CREDITS"));
                 coursesArray.put(course);
             }
         } catch (Exception e) {
@@ -372,16 +373,13 @@ public class RecordService {
         return -1;
     }
 
-    public static boolean updateCourse(EditCourseRequest editCourseRequest) {
-        String query = "UPDATE Courses SET course_title = ?, year = ?, semester = ?, credits = ? WHERE id = ?";
+    public static boolean updateCourseTitle(EditCourseTitleRequest request) {
+        String query = "UPDATE Courses SET course_title = ? WHERE id = ?";
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
-                preparedStatement.setString(1, editCourseRequest.getCourseTitle());
-                preparedStatement.setInt(2, editCourseRequest.getYear());
-                preparedStatement.setInt(3, editCourseRequest.getSemester());
-                preparedStatement.setInt(4, editCourseRequest.getCredits());
-                preparedStatement.setInt(5, editCourseRequest.getCourseId());
+                preparedStatement.setString(1, request.getCourseTitle());
+                preparedStatement.setInt(2, request.getCourseId());
 
                 int affectedRows = preparedStatement.executeUpdate();
                 return affectedRows > 0;
@@ -391,6 +389,58 @@ public class RecordService {
         }
         return false;
     }
+
+    public static boolean updateCourseYear(EditCourseYearRequest request) {
+        String query = "UPDATE Courses SET year = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, request.getYear());
+                preparedStatement.setInt(2, request.getCourseId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean updateCourseSemester(EditCourseSemesterRequest request) {
+        String query = "UPDATE Courses SET semester = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, request.getSemester());
+                preparedStatement.setInt(2, request.getCourseId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean updateCourseCredits(EditCourseCreditsRequest request) {
+        String query = "UPDATE Courses SET credits = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, request.getCredits());
+                preparedStatement.setInt(2, request.getCourseId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
 
     public static boolean deleteCourse(int courseId) {
         String query = "DELETE FROM Courses WHERE id = ?";

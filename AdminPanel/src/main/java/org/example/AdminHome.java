@@ -46,8 +46,8 @@ public class AdminHome {
         panel.add(manageStudentsButton);
         manageStudentsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                   new ManageStudents(jwt).setVisible(true);
-                 }
+                new ManageStudents(jwt).setVisible(true);
+            }
 
         });
 
@@ -74,24 +74,26 @@ public class AdminHome {
         panel.add(manageAnnouncementsButton);
         manageAnnouncementsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-new ManageAnnouncements(jwt).setVisible(true);}
+                new ManageAnnouncements(jwt).setVisible(true);
+            }
+        });
+
+        JButton manageCoursesButton = new JButton("Gestionează Cursuri");
+        manageCoursesButton.setBounds(10, 230, 200, 25);
+        panel.add(manageCoursesButton);
+        manageCoursesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                new ManageCourses(jwt).setVisible(true);
+            }
         });
 
         JButton logoutButton = new JButton("Logout");
-        logoutButton.setBounds(10, 230, 200, 25);
+        logoutButton.setBounds(10, 260, 200, 25);
         panel.add(logoutButton);
         logoutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Logica pentru logout
                 frame.dispose();
-            }
-        });
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new AdminHome("YOUR_JWT_TOKEN");
             }
         });
     }
