@@ -536,4 +536,60 @@
             }
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
+
+        @PostMapping("/create_announcement")
+        public ResponseEntity<String> createAnnouncement(@RequestBody CreateAnnouncementRequest createAnnouncementRequest) {
+            int authenticationResponse = EncryptionService.authenticateToken(createAnnouncementRequest.getJwt());
+            if (authenticationResponse == 3) {
+                boolean createResponse = RecordService.createAnnouncement(createAnnouncementRequest);
+                if (createResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to create announcement.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/get_announcements")
+        public ResponseEntity<String> getAnnouncements(@RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3) {
+                JSONArray announcementsArray = RecordService.getAllAnnouncements();
+                JSONObject response = new JSONObject();
+                response.put("announcements", announcementsArray);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+        @DeleteMapping("/delete_announcement")
+        public ResponseEntity<String> deleteAnnouncement(@RequestHeader("Authorization") String token, @RequestParam int id) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3) {
+                boolean deleteResponse = RecordService.deleteAnnouncement(id);
+                if (deleteResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to delete announcement.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+        @PutMapping("/update_announcement")
+        public ResponseEntity<String> updateAnnouncement(@RequestBody EditAnnouncementRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
+            if (authenticationResponse == 3) {
+                boolean updateResponse = RecordService.updateAnnouncement(request);
+                if (updateResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to update announcement.");
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
     }

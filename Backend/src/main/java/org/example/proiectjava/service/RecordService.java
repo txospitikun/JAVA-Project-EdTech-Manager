@@ -971,4 +971,79 @@ public class RecordService {
         return false;
     }
 
+
+    public static boolean createAnnouncement(CreateAnnouncementRequest request) {
+        String query = "INSERT INTO Announcements (announcement_title, announcement_content, upload_date) VALUES (?, ?, CURRENT_TIMESTAMP)";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, request.getAnnouncementTitle());
+                preparedStatement.setString(2, request.getAnnouncementContent());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static JSONArray getAllAnnouncements() {
+        JSONArray announcementsArray = new JSONArray();
+        String query = "SELECT id, announcement_title, announcement_content, upload_date FROM Announcements";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                JSONObject announcement = new JSONObject();
+                announcement.put("id", resultSet.getInt("id"));
+                announcement.put("announcementTitle", resultSet.getString("announcement_title"));
+                announcement.put("announcementContent", resultSet.getString("announcement_content"));
+                announcement.put("uploadDate", resultSet.getDate("upload_date").toString());
+
+                announcementsArray.put(announcement);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return announcementsArray;
+    }
+    public static boolean deleteAnnouncement(int id) {
+        String query = "DELETE FROM Announcements WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, id);
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public static boolean updateAnnouncement(EditAnnouncementRequest request) {
+        String query = "UPDATE Announcements SET announcement_title = ?, announcement_content = ? WHERE id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, request.getAnnouncementTitle());
+                preparedStatement.setString(2, request.getAnnouncementContent());
+                preparedStatement.setInt(3, request.getId());
+
+                int affectedRows = preparedStatement.executeUpdate();
+                return affectedRows > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
 }

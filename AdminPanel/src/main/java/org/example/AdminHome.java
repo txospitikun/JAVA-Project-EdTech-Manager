@@ -74,8 +74,7 @@ public class AdminHome {
         panel.add(manageAnnouncementsButton);
         manageAnnouncementsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Implementați logica pentru gestionarea anunțurilor
-            }
+new ManageAnnouncements(jwt).setVisible(true);}
         });
 
         JButton logoutButton = new JButton("Logout");
