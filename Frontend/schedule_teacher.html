@@ -20,29 +20,64 @@
     </header>
     <main>
         <h1>Orarul Profesorului</h1>
-        <div class="schedule">
-            <div class="day">
-                <h2>Luni</h2>
-                <div class="lesson">
-                    <p><strong>08:00 - 09:30:</strong> Matematica, Clasa 10A, Sala 101</p>
-                </div>
-                <div class="lesson">
-                    <p><strong>10:00 - 11:30:</strong> Fizica, Clasa 11B, Sala 102</p>
-                </div>
-            </div>
-            <div class="day">
-                <h2>Marți</h2>
-                <div class="lesson">
-                    <p><strong>08:00 - 09:30:</strong> Informatica, Clasa 12C, Sala 103</p>
-                </div>
-                <div class="lesson">
-                    <p><strong>10:00 - 11:30:</strong> Matematica, Clasa 10B, Sala 104</p>
-                </div>
-            </div>
+        <div class="schedule" id="schedule">
+            <!-- Schedule will be dynamically loaded here -->
         </div>
     </main>
     <footer>
         <p>&copy; 2024 Școala XYZ</p>
     </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const jwt = getCookie("jwt");
+            if (!jwt) {
+                window.location.href = "/login.html";
+                return;
+            }
+
+            fetch('http://localhost:8080/api/professor_schedule', {
+                method: "GET",
+                headers: {
+                    "Authorization": jwt
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displaySchedule(data.schedule);
+            })
+            .catch(error => console.error("Error fetching schedule:", error));
+
+            function displaySchedule(schedule) {
+                const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+                const scheduleContainer = document.getElementById('schedule');
+                scheduleContainer.innerHTML = '';
+
+                // Create columns for each day
+                daysOfWeek.forEach(day => {
+                    const dayColumn = document.createElement('div');
+                    dayColumn.classList.add('day');
+                    dayColumn.innerHTML = `<h2>${day}</h2>`;
+                    const daySchedule = schedule.filter(item => item.weekDay === day)
+                                                .sort((a, b) => a.timeDay.localeCompare(b.timeDay));
+                    
+                    daySchedule.forEach(item => {
+                        const lesson = document.createElement('div');
+                        lesson.classList.add('lesson');
+                        lesson.innerHTML = `
+                            <p><strong>${item.timeDay}:</strong> ${item.courseTitle}, Clasa ${item.groupName}, Sala ${item.classroomName}</p>
+                        `;
+                        dayColumn.appendChild(lesson);
+                    });
+                    scheduleContainer.appendChild(dayColumn);
+                });
+            }
+
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(";").shift();
+            }
+        });
+    </script>
 </body>
 </html>

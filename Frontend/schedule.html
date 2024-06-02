@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Panel - Orar</title>
     <link rel="stylesheet" href="schedule.css">
+    <style>
+        .schedule {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+        }
+        .day {
+            flex: 1;
+            margin: 0 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-sizing: border-box;
+            min-width: 200px;
+        }
+        .day h2 {
+            text-align: center;
+        }
+        .lesson p {
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -18,65 +39,78 @@
     </header>
     <main>
         <h1>Orarul Studentului</h1>
-        <div class="schedule">
-            <div class="day">
-                <h2>Luni</h2>
-                <div class="lesson">
-                    <p><strong>08:00 - 09:30:</strong> Matematică, Prof. Popescu, Sala 101</p>
-                </div>
-                <div class="lesson">
-                    <p><strong>10:00 - 11:30:</strong> Istorie, Prof. Ionescu, Sala 102</p>
-                </div>
-            </div>
-            <div class="day">
-                <h2>Marți</h2>
-                <div class="lesson">
-                    <p><strong>08:00 - 09:30:</strong> Biologie, Prof. Georgescu, Sala 103</p>
-                </div>
-                <div class="lesson">
-                    <p><strong>10:00 - 11:30:</strong> Chimie, Prof. Marinescu, Sala 104</p>
-                </div>
-            </div>
-            <div class="day">
-                <h2>Miercuri</h2>
-                <div class="lesson">
-                    <p><strong>08:00 - 09:30:</strong> Fizică, Prof. Enescu, Sala 105</p>
-                </div>
-                <div class="lesson">
-                    <p><strong>10:00 - 11:30:</strong> Geografie, Prof. Vasilescu, Sala 106</p>
-                </div>
-            </div>
-            <div class="day">
-                <h2>Joi</h2>
-                <div class="lesson">
-                    <p><strong>08:00 - 09:30:</strong> Limba Română, Prof. Stoica, Sala 107</p>
-                </div>
-                <div class="lesson">
-                    <p><strong>10:00 - 11:30:</strong> Informatică, Prof. Munteanu, Sala 108</p>
-                </div>
-            </div>
-            <div class="day">
-                <h2>Vineri</h2>
-                <div class="lesson">
-                    <p><strong>08:00 - 09:30:</strong> Educație Fizică, Prof. Dima, Sala 109</p>
-                </div>
-                <div class="lesson">
-                    <p><strong>10:00 - 11:30:</strong> Limba Engleză, Prof. Tudor, Sala 110</p>
-                </div>
-            </div>
-            <div class="day">
-                <h2>Sâmbătă</h2>
-                <div class="lesson">
-                    <p><strong>09:00 - 10:30:</strong> Muzică, Prof. Marin, Sala 111</p>
-                </div>
-            </div>
-            <div class="day">
-                <h2>Duminică</h2>
-                <div class="lesson">
-                    <p>Nu sunt cursuri</p>
-                </div>
-            </div>
+        <div class="schedule" id="schedule">
+            <!-- Schedule will be dynamically loaded here -->
         </div>
     </main>
+    <footer>
+        <p>&copy; 2024 Școala XYZ</p>
+    </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const jwt = getCookie("jwt");
+            if (!jwt) {
+                window.location.href = "/login.html";
+                return;
+            }
+
+            fetch('http://localhost:8080/api/student_schedule', {
+                method: "GET",
+                headers: {
+                    "Authorization": jwt
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displaySchedule(data.schedule);
+            })
+            .catch(error => console.error("Error fetching schedule:", error));
+
+            function displaySchedule(schedule) {
+                const daysOfWeek = ["Luni", "Marți", "Miercuri", "Joi", "Vineri"];
+                const scheduleContainer = document.getElementById('schedule');
+                scheduleContainer.innerHTML = '';
+
+                // Create columns for each day
+                daysOfWeek.forEach(day => {
+                    const dayColumn = document.createElement('div');
+                    dayColumn.classList.add('day');
+                    dayColumn.innerHTML = `<h2>${day}</h2>`;
+                    const daySchedule = schedule.filter(item => translateDay(item.weekDay) === day)
+                                                .sort((a, b) => a.timeDay.localeCompare(b.timeDay));
+                    
+                    daySchedule.forEach(item => {
+                        const lesson = document.createElement('div');
+                        lesson.classList.add('lesson');
+                        lesson.innerHTML = `
+                            <p><strong>${item.timeDay}:</strong></p>
+                            <p>${item.courseTitle}</p>
+                            <p>Prof. ${item.professorFirstName} ${item.professorLastName}</p>
+                            <p>Sala ${item.classroomName}</p>
+                        `;
+                        dayColumn.appendChild(lesson);
+                    });
+                    scheduleContainer.appendChild(dayColumn);
+                });
+            }
+
+            function translateDay(day) {
+                const days = {
+                    "Monday": "Luni",
+                    "Tuesday": "Marți",
+                    "Wednesday": "Miercuri",
+                    "Thursday": "Joi",
+                    "Friday": "Vineri"
+                };
+                return days[day];
+            }
+
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(";").shift();
+            }
+        });
+    </script>
 </body>
 </html>

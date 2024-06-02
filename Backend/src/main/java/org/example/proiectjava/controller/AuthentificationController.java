@@ -730,4 +730,32 @@
             }
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
+
+        @GetMapping("/professor_schedule")
+        public ResponseEntity<String> getProfessorSchedule(@RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3 || authenticationResponse == 2 || authenticationResponse == 1) {
+                int professorId = EncryptionService.getUserIDFromToken(token);
+                JSONArray scheduleArray = RecordService.getProfessorSchedule(professorId);
+                JSONObject response = new JSONObject();
+                response.put("schedule", scheduleArray);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+        @GetMapping("/student_schedule")
+        public ResponseEntity<String> getStudentSchedule(@RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 1 || authenticationResponse == 2 || authenticationResponse == 3) {
+                int studentId = EncryptionService.getUserIDFromToken(token);
+                JSONArray scheduleArray = RecordService.getStudentSchedule(studentId);
+                JSONObject response = new JSONObject();
+                response.put("schedule", scheduleArray);
+                return ResponseEntity.ok(response.toString());
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+
     }
