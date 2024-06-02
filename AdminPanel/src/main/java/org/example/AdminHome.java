@@ -65,8 +65,7 @@ public class AdminHome {
         panel.add(manageScheduleButton);
         manageScheduleButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Implementați logica pentru gestionarea orarului
-            }
+new ManageSchedule(jwt).setVisible(true);            }
         });
 
         JButton manageAnnouncementsButton = new JButton("Gestionează Anunțuri");

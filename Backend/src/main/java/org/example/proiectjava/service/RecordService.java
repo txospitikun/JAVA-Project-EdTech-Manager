@@ -1304,6 +1304,38 @@ public class RecordService {
         }
         return -1;
     }
+    public static JSONArray getSchedule() {
+        JSONArray scheduleArray = new JSONArray();
+        String query = "SELECT s.week_day, s.time_day, c.classroom_name, g.group_name, p.first_name, p.last_name " +
+                "FROM Schedule s " +
+                "JOIN GroupProfessorLink gpl ON s.link_id = gpl.id " +
+                "JOIN Groups g ON gpl.group_id = g.id " +
+                "JOIN Professors p ON gpl.prof_id = p.id " +
+                "JOIN Classrooms c ON s.classroom_id = c.id";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                JSONObject scheduleEntry = new JSONObject();
+                scheduleEntry.put("week_day", rs.getString("week_day"));
+                scheduleEntry.put("time_day", rs.getString("time_day"));
+                scheduleEntry.put("classroom", rs.getString("classroom_name"));
+                scheduleEntry.put("group", rs.getString("group_name"));
+                scheduleEntry.put("professor", rs.getString("first_name") + " " + rs.getString("last_name"));
+                scheduleArray.put(scheduleEntry);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("SQL Exception: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Exception: " + e.getMessage());
+        }
+        return scheduleArray;
+    }
+
 
 
 }

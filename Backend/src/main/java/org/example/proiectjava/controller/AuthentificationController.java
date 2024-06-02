@@ -3,6 +3,7 @@
     import org.example.proiectjava.dto.*;
     import org.example.proiectjava.service.EncryptionService;
     import org.example.proiectjava.service.RecordService;
+    import org.example.proiectjava.service.ScheduleService;
     import org.json.*;
 
     import org.example.proiectjava.service.AuthService;
@@ -10,6 +11,7 @@
     import org.springframework.web.bind.annotation.*;
 
     import java.util.List;
+    import java.util.Map;
 
     @RestController
     @RequestMapping("/api")
@@ -730,4 +732,29 @@
             }
             return ResponseEntity.status(401).body("Invalid JWT.");
         }
+
+
+
+            @PostMapping("/generate_schedule")
+            public ResponseEntity<String> generateSchedule(@RequestBody Map<String, Integer> request) {
+                int semester = request.get("semester");
+                JSONArray generatedSchedule = ScheduleService.generateSchedule(semester);
+                return ResponseEntity.ok(generatedSchedule.toString());
+
+        }
+        @GetMapping("/get_schedule")
+        public ResponseEntity<String> getSchedule(@RequestHeader("Authorization") String token) {
+            int authenticationResponse = EncryptionService.authenticateToken(token);
+            if (authenticationResponse == 3) {
+                JSONArray scheduleArray = RecordService.getSchedule();
+                JSONObject response = new JSONObject();
+                response.put("schedule", scheduleArray);
+                return ResponseEntity.ok(response.toString());
+            } else {
+                System.err.println("Invalid JWT: " + token);
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+
     }
