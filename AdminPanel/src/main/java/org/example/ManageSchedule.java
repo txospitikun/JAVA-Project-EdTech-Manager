@@ -120,4 +120,51 @@ public class ManageSchedule {
             }
         });
     }
+<<<<<<< Updated upstream
+=======
+
+    private void loadSchedule() {
+        try {
+            URL url = new URL("http://localhost:8080/api/get_schedule");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", jwt);
+
+            int responseCode = connection.getResponseCode();
+            System.out.println("Response Code: " + responseCode);
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                JSONArray scheduleArray = jsonResponse.getJSONArray("schedule");
+
+                tableModel.setRowCount(0);
+                for (int i = 0; i < scheduleArray.length(); i++) {
+                    JSONObject entry = scheduleArray.getJSONObject(i);
+                    String weekDay = entry.getString("week_day");
+                    String timeDay = entry.getString("time_day");
+                    String classroom = entry.getString("classroom");
+                    String group = entry.getString("group");
+                    String professor = entry.getString("professor");
+
+                    tableModel.addRow(new Object[]{weekDay, timeDay, classroom, group, professor});
+                }
+            } else {
+                System.out.println("Error Response: " + responseCode);
+                JOptionPane.showMessageDialog(null, "A apărut o eroare la încărcarea orarului.");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "A apărut o eroare la încărcarea orarului.");
+        }
+    }
+
+>>>>>>> Stashed changes
 }
