@@ -16,8 +16,8 @@ public class LoginFrame extends JFrame {
     private JLabel errorLabel;
 
     public LoginFrame() {
-        setTitle("Login");
-        setSize(400, 300);
+        setTitle("Login into the Admin Panel");
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 

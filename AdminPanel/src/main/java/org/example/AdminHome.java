@@ -24,7 +24,7 @@ public class AdminHome {
     private static void placeComponents(JPanel panel) {
         panel.setLayout(null);
 
-        JLabel welcomeLabel = new JLabel("Bine ai venit, Administrator!");
+        JLabel welcomeLabel = new JLabel("Bine ai venit! Sunteți logat ca și administrator.");
         welcomeLabel.setBounds(10, 20, 300, 25);
         panel.add(welcomeLabel);
 
@@ -33,7 +33,7 @@ public class AdminHome {
         panel.add(instructionsLabel);
 
         JButton manageTeachersButton = new JButton("Gestionează Profesori");
-        manageTeachersButton.setBounds(10, 80, 200, 25);
+        manageTeachersButton.setBounds(10, 80, 300, 25);
         panel.add(manageTeachersButton);
         manageTeachersButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -41,8 +41,8 @@ public class AdminHome {
             }
         });
 
-        JButton manageStudentsButton = new JButton("Gestionează Elevi");
-        manageStudentsButton.setBounds(10, 110, 200, 25);
+        JButton manageStudentsButton = new JButton("Gestionează Studenți");
+        manageStudentsButton.setBounds(10, 110, 300, 25);
         panel.add(manageStudentsButton);
         manageStudentsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -52,7 +52,7 @@ public class AdminHome {
         });
 
         JButton manageClassesButton = new JButton("Gestionează Grupe");
-        manageClassesButton.setBounds(10, 140, 200, 25);
+        manageClassesButton.setBounds(10, 140, 300, 25);
         panel.add(manageClassesButton);
         manageClassesButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -60,16 +60,16 @@ public class AdminHome {
             }
         });
 
-        JButton manageScheduleButton = new JButton("Gestionează Orar");
-        manageScheduleButton.setBounds(10, 170, 200, 25);
+        JButton manageScheduleButton = new JButton("Gestionează Orarul");
+        manageScheduleButton.setBounds(10, 170, 300, 25);
         panel.add(manageScheduleButton);
         manageScheduleButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 new ManageSchedule(jwt).setVisible(true);            }
         });
 
-        JButton manageAnnouncementsButton = new JButton("Gestionează Anunțuri");
-        manageAnnouncementsButton.setBounds(10, 200, 200, 25);
+        JButton manageAnnouncementsButton = new JButton("Gestionează Anunțurile");
+        manageAnnouncementsButton.setBounds(10, 200, 300, 25);
         panel.add(manageAnnouncementsButton);
         manageAnnouncementsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -77,8 +77,8 @@ new ManageSchedule(jwt).setVisible(true);            }
             }
         });
 
-        JButton manageCoursesButton = new JButton("Gestionează Cursuri");
-        manageCoursesButton.setBounds(10, 230, 200, 25);
+        JButton manageCoursesButton = new JButton("Gestionează Cursurile");
+        manageCoursesButton.setBounds(10, 230, 300, 25);
         panel.add(manageCoursesButton);
         manageCoursesButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -86,8 +86,8 @@ new ManageSchedule(jwt).setVisible(true);            }
             }
         });
 
-        JButton logoutButton = new JButton("Logout");
-        logoutButton.setBounds(10, 260, 200, 25);
+        JButton logoutButton = new JButton("Deloghează-te și închide aplicația!");
+        logoutButton.setBounds(10, 510, 300, 25);
         panel.add(logoutButton);
         logoutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {

@@ -1,0 +1,37 @@
+
+h
+java:S1192|"MDefine a constant instead of duplicating this literal "JWT invalid!" 3 times.(áşàéıÿÿÿÿ
+m
+java:S1192m"RDefine a constant instead of duplicating this literal "announcementTitle" 3 times.(í¹‘ûûÿÿÿÿ
+k
+java:S1192ƒ"UDefine a constant instead of duplicating this literal "Eroare de conexiune!" 4 times.(Ôëı+
+j
+java:S1192n"TDefine a constant instead of duplicating this literal "announcementContent" 3 times.(ìÁ¬½
+=
+java:S1604T"(Make this anonymous inner class a lambda(¸îÁe
+C
+java:S1604Z"(Make this anonymous inner class a lambda(‹çÃ×ıÿÿÿÿ
+D
+java:S1604À"(Make this anonymous inner class a lambda(ò¾Ú¹úÿÿÿÿ
+D
+java:S1604Ç"(Make this anonymous inner class a lambda(«ªäóúÿÿÿÿ
+?
+java:S1604ü"(Make this anonymous inner class a lambda(Ï¸
+D
+java:S1604È"(Make this anonymous inner class a lambda(Ô¶µÿşÿÿÿÿ
+{
+java:S1149“"_Replace the synchronized class "StringBuffer" by an unsynchronized one such as "StringBuilder".(Ôô¡Óüÿÿÿÿ
+b
+java:S3252"LUse static access with "javax.swing.WindowConstants" for "DISPOSE_ON_CLOSE".(Òœ Ğ
+@
+java:S1874f"+Remove this use of "URL"; it is deprecated.(¦ôæI
+O
+java:S4719r"9Replace charset name argument with StandardCharsets.UTF_8(…‰õµ
+A
+java:S1874Š"+Remove this use of "URL"; it is deprecated.(¦ôæI
+A
+java:S1874Š"+Remove this use of "URL"; it is deprecated.(¦ôæI
+P
+java:S4719—"9Replace charset name argument with StandardCharsets.UTF_8(…‰õµ
+A
+java:S1874°"+Remove this use of "URL"; it is deprecated.(¦ôæI

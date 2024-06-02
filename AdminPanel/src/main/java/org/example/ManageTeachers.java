@@ -39,6 +39,7 @@ public class ManageTeachers extends JFrame {
 
         JLabel firstNameLabel = new JLabel("Prenume:");
         gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridy = 0;
         formPanel.add(firstNameLabel, gbc);
 

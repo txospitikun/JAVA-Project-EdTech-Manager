@@ -1337,5 +1337,95 @@ public class RecordService {
     }
 
 
+    public static JSONArray getProfessorSchedule(int professorId) {
+        JSONArray scheduleArray = new JSONArray();
+        String query = "SELECT s.id, s.week_day, s.time_day, c.classroom_name, g.course_id, co.course_title, gp.group_name " +
+                "FROM schedule s " +
+                "JOIN groupprofessorlink g ON s.link_id = g.id " +
+                "JOIN classrooms c ON s.classroom_id = c.id " +
+                "JOIN courses co ON g.course_id = co.id " +
+                "JOIN groups gp ON g.group_id = gp.id " +
+                "WHERE g.prof_id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, getProfessorIdByUserId(professorId));
+                ResultSet rs = preparedStatement.executeQuery();
+                while (rs.next()) {
+                    JSONObject schedule = new JSONObject();
+                    schedule.put("id", rs.getInt("id"));
+                    schedule.put("weekDay", rs.getString("week_day"));
+                    schedule.put("timeDay", rs.getString("time_day"));
+                    schedule.put("classroomName", rs.getString("classroom_name"));
+                    schedule.put("courseId", rs.getInt("course_id"));
+                    schedule.put("courseTitle", rs.getString("course_title"));
+                    schedule.put("groupName", rs.getString("group_name"));
+                    scheduleArray.put(schedule);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return scheduleArray;
+    }
+
+
+    public static JSONArray getStudentSchedule(int studentId) {
+        JSONArray scheduleArray = new JSONArray();
+        String query = "SELECT s.id, s.week_day, s.time_day, c.classroom_name, co.course_title, gp.group_name, p.first_name AS professor_first_name, p.last_name AS professor_last_name " +
+                "FROM schedule s " +
+                "JOIN groupprofessorlink g ON s.link_id = g.id " +
+                "JOIN classrooms c ON s.classroom_id = c.id " +
+                "JOIN courses co ON g.course_id = co.id " +
+                "JOIN groups gp ON g.group_id = gp.id " +
+                "JOIN studentyears sy ON g.group_id = sy.group_id " +
+                "JOIN professors p ON g.prof_id = p.id " +
+                "WHERE sy.id_student = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, getStudentIdByUserId(studentId));
+                ResultSet rs = preparedStatement.executeQuery();
+                while (rs.next()) {
+                    JSONObject schedule = new JSONObject();
+                    schedule.put("id", rs.getInt("id"));
+                    schedule.put("weekDay", rs.getString("week_day"));
+                    schedule.put("timeDay", rs.getString("time_day"));
+                    schedule.put("classroomName", rs.getString("classroom_name"));
+                    schedule.put("courseTitle", rs.getString("course_title"));
+                    schedule.put("groupName", rs.getString("group_name"));
+                    schedule.put("professorFirstName", rs.getString("professor_first_name"));
+                    schedule.put("professorLastName", rs.getString("professor_last_name"));
+                    scheduleArray.put(schedule);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return scheduleArray;
+    }
+
+    public static int getStudentIdByUserId(int userId) {
+        int studentId = -1;
+        String query = "SELECT id FROM students WHERE user_id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, userId);
+                ResultSet rs = preparedStatement.executeQuery();
+                if (rs.next()) {
+                    studentId = rs.getInt("id");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return studentId;
+    }
+
+
+
+
+
 
 }

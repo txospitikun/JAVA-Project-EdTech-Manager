@@ -1,0 +1,60 @@
+
+k
+java:S1192Ð"UDefine a constant instead of duplicating this literal "Eroare de conexiune!" 8 times.(Ôëý+
+]
+java:S1192º"FDefine a constant instead of duplicating this literal "group" 3 times.(Âº‘Û
+h
+java:S1192²"QDefine a constant instead of duplicating this literal "application/json" 5 times.(—‰µô
+a
+java:S1192¶"JDefine a constant instead of duplicating this literal "firstName" 3 times.(ÔÊŒœ
+]
+java:S1192¾"FDefine a constant instead of duplicating this literal "utf-8" 5 times.(…‰õµ
+e
+java:S1192·"IDefine a constant instead of duplicating this literal "lastName" 3 times.(÷þ€…ùÿÿÿÿ
+a
+java:S1192“"JDefine a constant instead of duplicating this literal "studentId" 5 times.(Ûëëà
+e
+java:S1192Ú"NDefine a constant instead of duplicating this literal "Authorization" 3 times.(ŽÍ¦ã
+d
+java:S1192²"MDefine a constant instead of duplicating this literal "Content-Type" 5 times.(—‰µô
+`
+java:S1192¸"IDefine a constant instead of duplicating this literal "username" 3 times.(óÝ‰¥
+C
+java:S1604p"(Make this anonymous inner class a lambda(ÿ½ç¼øÿÿÿÿ
+=
+java:S1604v"(Make this anonymous inner class a lambda(¸îÁe
+{
+java:S1149à"_Replace the synchronized class "StringBuffer" by an unsynchronized one such as "StringBuilder".(Ôô¡Óüÿÿÿÿ
+{
+java:S1149†"_Replace the synchronized class "StringBuffer" by an unsynchronized one such as "StringBuilder".(Ôô¡Óüÿÿÿÿ
+{
+java:S1149Ã"_Replace the synchronized class "StringBuffer" by an unsynchronized one such as "StringBuilder".(Ôô¡Óüÿÿÿÿ
+b
+java:S3252"LUse static access with "javax.swing.WindowConstants" for "DISPOSE_ON_CLOSE".(Òœ Ð
+8	java:S131›""Add a default case to this switch.(äªÁ‡
+A
+java:S1874¯"+Remove this use of "URL"; it is deprecated.(¦ôæI
+P
+java:S4719¾"9Replace charset name argument with StandardCharsets.UTF_8(…‰õµ
+A
+java:S1874×"+Remove this use of "URL"; it is deprecated.(¦ôæI
+A
+java:S1874ý"+Remove this use of "URL"; it is deprecated.(¦ôæI
+A
+java:S1874«"+Remove this use of "URL"; it is deprecated.(¦ôæI
+P
+java:S4719·"9Replace charset name argument with StandardCharsets.UTF_8(…‰õµ
+A
+java:S1874Ì"+Remove this use of "URL"; it is deprecated.(¦ôæI
+P
+java:S4719Ø"9Replace charset name argument with StandardCharsets.UTF_8(…‰õµ
+A
+java:S1874í"+Remove this use of "URL"; it is deprecated.(¦ôæI
+P
+java:S4719ù"9Replace charset name argument with StandardCharsets.UTF_8(…‰õµ
+A
+java:S1874Ž"+Remove this use of "URL"; it is deprecated.(¦ôæI
+P
+java:S4719£"9Replace charset name argument with StandardCharsets.UTF_8(…‰õµ
+A
+java:S1874º"+Remove this use of "URL"; it is deprecated.(¦ôæI

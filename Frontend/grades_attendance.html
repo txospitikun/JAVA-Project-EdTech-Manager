@@ -65,13 +65,27 @@
 
             let selectedCourseId = null;
 
-            loadGroups();
-            loadCourses();
+            getProfessorId().then(professorId => {
+                loadGroups();
+                loadProfessorCourses(professorId);
+            });
 
             document.getElementById('group').addEventListener('change', loadStudents);
             document.getElementById('subject').addEventListener('change', updateSelectedCourseId);
             document.getElementById('attendance').addEventListener('change', toggleGradeInput);
             document.getElementById('grade-form').addEventListener('submit', submitGrade);
+
+            function getProfessorId() {
+                return fetch('http://localhost:8080/api/get_professor', {
+                    method: "GET",
+                    headers: {
+                        "Authorization": jwt
+                    }
+                })
+                .then(response => response.json())
+                .then(data => data.id)
+                .catch(error => console.error("Error fetching professor ID:", error));
+            }
 
             function loadGroups() {
                 fetch('http://localhost:8080/api/get_groups', {
@@ -95,8 +109,8 @@
                 .catch(error => console.error("Error fetching groups:", error));
             }
 
-            function loadCourses() {
-                fetch('http://localhost:8080/api/get_courses', {
+            function loadProfessorCourses(professorId) {
+                fetch(`http://localhost:8080/api/professor_courses?professorId=${professorId}`, {
                     method: "GET",
                     headers: {
                         "Authorization": jwt
@@ -108,11 +122,11 @@
                     subjectSelect.innerHTML = "";
                     data.courses.forEach(course => {
                         const option = document.createElement('option');
-                        option.value = course.courseId;
+                        option.value = course.id;
                         option.textContent = course.courseTitle;
                         subjectSelect.appendChild(option);
                     });
-                    selectedCourseId = parseInt(data.courses[0].courseId, 10); // Set initial selected course ID
+                    selectedCourseId = parseInt(data.courses[0].id, 10); // Set initial selected course ID
                 })
                 .catch(error => console.error("Error fetching courses:", error));
             }
