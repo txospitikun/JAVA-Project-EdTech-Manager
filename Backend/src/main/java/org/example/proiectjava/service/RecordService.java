@@ -1262,4 +1262,48 @@ public class RecordService {
         }
         return -1;
     }
+    public static boolean saveGroupProfessorLink(SaveGroupProfessorLinkRequest request) {
+        String insertQuery = "INSERT INTO GroupProfessorLink (prof_id, course_id, group_id) VALUES (?, ?, ?)";
+        String updateQuery = "UPDATE GroupProfessorLink SET prof_id = ? WHERE course_id = ? AND group_id = ?";
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                int existingProfessorId = getExistingProfessorId(connection, request.getCourseId(), request.getGroupId());
+                if (existingProfessorId == -1) {
+                    try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+                        preparedStatement.setInt(1, request.getProfessorId());
+                        preparedStatement.setInt(2, request.getCourseId());
+                        preparedStatement.setInt(3, request.getGroupId());
+                        preparedStatement.executeUpdate();
+                    }
+                } else {
+                    try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
+                        preparedStatement.setInt(1, request.getProfessorId());
+                        preparedStatement.setInt(2, request.getCourseId());
+                        preparedStatement.setInt(3, request.getGroupId());
+                        preparedStatement.executeUpdate();
+                    }
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private static int getExistingProfessorId(Connection connection, int courseId, int groupId) throws SQLException {
+        String query = "SELECT prof_id FROM GroupProfessorLink WHERE course_id = ? AND group_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, courseId);
+            preparedStatement.setInt(2, groupId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("prof_id");
+                }
+            }
+        }
+        return -1;
+    }
+
+
 }

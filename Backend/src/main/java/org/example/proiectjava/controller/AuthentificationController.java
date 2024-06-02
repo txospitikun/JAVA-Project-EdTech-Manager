@@ -9,6 +9,8 @@
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
 
+    import java.util.List;
+
     @RestController
     @RequestMapping("/api")
     public class AuthentificationController {
@@ -709,6 +711,22 @@
                 } else {
                     return ResponseEntity.status(404).body("Group not found.");
                 }
+            }
+            return ResponseEntity.status(401).body("Invalid JWT.");
+        }
+
+
+        @PostMapping("/save_group_professor_link")
+        public ResponseEntity<String> saveGroupProfessorLink(@RequestBody SaveGroupProfessorLinkRequest request) {
+            int authenticationResponse = EncryptionService.authenticateToken(request.getJwt());
+            if (authenticationResponse == 3) {
+                boolean saveResponse = RecordService.saveGroupProfessorLink(request);
+                if (saveResponse) {
+                    JSONObject response = new JSONObject();
+                    response.put("Response", "successful");
+                    return ResponseEntity.ok(response.toString());
+                }
+                return ResponseEntity.status(500).body("Failed to save group professor link.");
             }
             return ResponseEntity.status(401).body("Invalid JWT.");
         }

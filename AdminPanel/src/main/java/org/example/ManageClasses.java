@@ -9,26 +9,37 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ManageClasses extends JFrame {
     private String jwt;
-    private DefaultComboBoxModel<String> groupComboBoxModel;
+    private DefaultListModel<String> groupListModel;
     private JPanel coursesPanel;
-    private JComboBox<String> groupComboBox;
+    private JList<String> groupList;
     private JLabel statusLabel;
+    private Map<Integer, JComboBox<ProfessorItem>> courseProfessorMap = new HashMap<>();
+    private Map<Integer, Integer> courseIdMap = new HashMap<>(); // map to store courseId with index
 
     public ManageClasses(String jwt) {
         this.jwt = jwt;
 
         setTitle("Admin Panel - Gestionează Grupe");
-        setSize(800, 600);
+        setSize(1000, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel panel = new JPanel(new BorderLayout());
-        add(panel);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        add(mainPanel);
+
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        mainPanel.add(leftPanel, BorderLayout.WEST);
+
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        mainPanel.add(rightPanel, BorderLayout.CENTER);
 
         JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -57,29 +68,25 @@ public class ManageClasses extends JFrame {
         gbc.gridwidth = 2;
         formPanel.add(statusLabel, gbc);
 
-        panel.add(formPanel, BorderLayout.NORTH);
+        leftPanel.add(formPanel, BorderLayout.NORTH);
 
-        JPanel groupPanel = new JPanel(new BorderLayout());
-        groupComboBoxModel = new DefaultComboBoxModel<>();
-        groupComboBox = new JComboBox<>(groupComboBoxModel);
-        groupComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedGroup = (String) groupComboBox.getSelectedItem();
-                if (selectedGroup != null) {
-                    loadCoursesForGroup(selectedGroup);
-                }
+        groupListModel = new DefaultListModel<>();
+        groupList = new JList<>(groupListModel);
+        groupList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        groupList.addListSelectionListener(e -> {
+            String selectedGroup = groupList.getSelectedValue();
+            if (selectedGroup != null) {
+                loadCoursesForGroup(selectedGroup);
             }
         });
-        groupPanel.add(new JLabel("Selectează Grupă:"), BorderLayout.WEST);
-        groupPanel.add(groupComboBox, BorderLayout.CENTER);
-        panel.add(groupPanel, BorderLayout.CENTER);
+
+        JScrollPane groupScrollPane = new JScrollPane(groupList);
+        leftPanel.add(groupScrollPane, BorderLayout.CENTER);
 
         coursesPanel = new JPanel();
         coursesPanel.setLayout(new BoxLayout(coursesPanel, BoxLayout.Y_AXIS));
         JScrollPane coursesScrollPane = new JScrollPane(coursesPanel);
-        coursesScrollPane.setPreferredSize(new Dimension(760, 300));
-        panel.add(coursesScrollPane, BorderLayout.SOUTH);
+        rightPanel.add(coursesScrollPane, BorderLayout.CENTER);
 
         createGroupButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -148,11 +155,11 @@ public class ManageClasses extends JFrame {
                 JSONObject jsonResponse = new JSONObject(response.toString());
                 JSONArray groupsArray = jsonResponse.getJSONArray("groups");
 
-                groupComboBoxModel.removeAllElements();
+                groupListModel.clear();
                 for (int i = 0; i < groupsArray.length(); i++) {
                     JSONObject group = groupsArray.getJSONObject(i);
                     String groupName = group.getString("groupName");
-                    groupComboBoxModel.addElement(groupName);
+                    groupListModel.addElement(groupName);
                 }
             } else {
                 statusLabel.setForeground(Color.RED);
@@ -169,7 +176,7 @@ public class ManageClasses extends JFrame {
         int year = Character.getNumericValue(groupName.charAt(0));
         int selectedGroupId = findGroupIdByName(groupName);
         try {
-            String url = "http://localhost:8080/api/get_courses_for_year?year=" + year;
+            String url = "http://localhost:8080/api/get_courses_for_year?year=" + URLEncoder.encode(String.valueOf(year), "UTF-8");
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("GET");
@@ -198,20 +205,36 @@ public class ManageClasses extends JFrame {
                     String courseTitle = course.getString("courseTitle");
 
                     JPanel coursePanel = new JPanel();
-                    coursePanel.setLayout(new BoxLayout(coursePanel, BoxLayout.X_AXIS));
+                    coursePanel.setLayout(new BoxLayout(coursePanel, BoxLayout.Y_AXIS));
                     coursePanel.setBorder(BorderFactory.createTitledBorder(courseTitle));
-                    coursePanel.setPreferredSize(new Dimension(750, 50)); // Dimensiune fixă pentru fiecare curs
 
-                    JComboBox<String> professorComboBox = new JComboBox<>();
+                    JComboBox<ProfessorItem> professorComboBox = new JComboBox<>();
                     loadProfessorsForCourse(courseId, professorComboBox);
+                    courseProfessorMap.put(courseId, professorComboBox);
 
                     int selectedProfId = findSelectedProfessor(groupCourseProfessors, courseId);
                     if (selectedProfId != -1) {
-                        professorComboBox.setSelectedItem(getProfessorNameById(selectedProfId));
+                        professorComboBox.setSelectedItem(new ProfessorItem(selectedProfId, getProfessorNameById(selectedProfId)));
                     }
 
-                    coursePanel.add(new JLabel("Profesor:"));
+                    JButton saveButton = new JButton("Salvează");
+                    saveButton.addActionListener(e -> {
+                        try {
+                            ProfessorItem selectedProfessor = (ProfessorItem) professorComboBox.getSelectedItem();
+                            if (selectedProfessor == null) {
+                                statusLabel.setForeground(Color.RED);
+                                statusLabel.setText("Trebuie sa selectezi un profesor");
+                            } else {
+                                saveProfessorForCourse(selectedGroupId, courseId, selectedProfessor.getId());
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            statusLabel.setText("Eroare de conexiune!");
+                        }
+                    });
+
                     coursePanel.add(professorComboBox);
+                    coursePanel.add(saveButton);
 
                     coursesPanel.add(coursePanel);
                 }
@@ -227,8 +250,43 @@ public class ManageClasses extends JFrame {
         }
     }
 
+    private void saveProfessorForCourse(int groupId, int courseId, int professorId) {
+        try {
+            String url = "http://localhost:8080/api/save_group_professor_link";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json");
+
+            JSONObject jsonRequest = new JSONObject();
+            jsonRequest.put("jwt", jwt);
+            jsonRequest.put("groupId", groupId);
+            jsonRequest.put("courseId", courseId);
+            jsonRequest.put("professorId", professorId);
+
+            con.setDoOutput(true);
+
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = jsonRequest.toString().getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                statusLabel.setForeground(Color.GREEN);
+                statusLabel.setText("Profesor salvat cu succes!");
+            } else {
+                statusLabel.setForeground(Color.RED);
+                statusLabel.setText("Eroare la salvarea profesorului!");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            statusLabel.setText("Eroare de conexiune!");
+        }
+    }
+
     private JSONObject getGroupProfessorsForCourses(int groupId) throws Exception {
-        String url = "http://localhost:8080/api/get_group_course_professors?groupId=" + groupId;
+        String url = "http://localhost:8080/api/get_group_course_professors?groupId=" + URLEncoder.encode(String.valueOf(groupId), "UTF-8");
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
@@ -263,7 +321,7 @@ public class ManageClasses extends JFrame {
 
     private String getProfessorNameById(int profId) {
         try {
-            String url = "http://localhost:8080/api/get_professor_by_id?profId=" + profId;
+            String url = "http://localhost:8080/api/get_professor_by_id?profId=" + URLEncoder.encode(String.valueOf(profId), "UTF-8");
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("GET");
@@ -280,7 +338,6 @@ public class ManageClasses extends JFrame {
                 }
                 in.close();
 
-                System.out.println("Response from server: " + response.toString()); // Debug line
                 JSONObject jsonResponse = new JSONObject(response.toString());
                 return jsonResponse.getString("professorName");
             } else {
@@ -294,9 +351,9 @@ public class ManageClasses extends JFrame {
         return null;
     }
 
-    private void loadProfessorsForCourse(int courseId, JComboBox<String> professorComboBox) {
+    private void loadProfessorsForCourse(int courseId, JComboBox<ProfessorItem> professorComboBox) {
         try {
-            String url = "http://localhost:8080/api/get_professors_for_course?courseId=" + courseId;
+            String url = "http://localhost:8080/api/get_professors_for_course?courseId=" + URLEncoder.encode(String.valueOf(courseId), "UTF-8");
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("GET");
@@ -319,8 +376,9 @@ public class ManageClasses extends JFrame {
                 professorComboBox.removeAllItems();
                 for (int i = 0; i < professorsArray.length(); i++) {
                     JSONObject professor = professorsArray.getJSONObject(i);
+                    int professorId = professor.getInt("id");
                     String professorName = professor.getString("name");
-                    professorComboBox.addItem(professorName);
+                    professorComboBox.addItem(new ProfessorItem(professorId, professorName));
                 }
             } else {
                 statusLabel.setForeground(Color.RED);
@@ -334,7 +392,7 @@ public class ManageClasses extends JFrame {
 
     private int findGroupIdByName(String groupName) {
         try {
-            String url = "http://localhost:8080/api/find_group_id_by_name?name=" + groupName;
+            String url = "http://localhost:8080/api/find_group_id_by_name?name=" + URLEncoder.encode(groupName, "UTF-8");
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("GET");
@@ -362,5 +420,25 @@ public class ManageClasses extends JFrame {
             statusLabel.setText("Eroare de conexiune!");
         }
         return -1;
+    }
+
+
+    private static class ProfessorItem {
+        private final int id;
+        private final String name;
+
+        public ProfessorItem(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }
