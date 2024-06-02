@@ -5,16 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Panel - Orar</title>
     <link rel="stylesheet" href="teacher.css">
+    <style>
+        .schedule {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .day {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .day h2 {
+            text-align: left;
+            color: green;
+        }
+        .lesson p {
+            margin: 5px 0;
+            word-wrap: break-word;
+        }
+    </style>
 </head>
 <body>
     <header>
         <nav>
-            <a href="home_admin.html">Home</a>
-            <a href="manage_teachers.html">Gestionează Profesori</a>
-            <a href="manage_students.html">Gestionează Elevi</a>
-            <a href="manage_classes.html">Gestionează Grupe</a>
-            <a href="manage_schedule.html">Gestionează Orar</a>
-            <a href="manage_announcements.html">Gestionează Anunțuri</a>
+            <a href="home_teacher.html">Home</a>
+            <a href="schedule_teacher.html">Orar</a>
+            <a href="grades_attendance.html">Pune Note/Absente</a>
+            <a href="announcements_teacher.html">Anunțuri</a>
             <a href="/login.html">Logout</a>
         </nav>
     </header>
@@ -52,11 +71,10 @@
                 const scheduleContainer = document.getElementById('schedule');
                 scheduleContainer.innerHTML = '';
 
-                // Create columns for each day
                 daysOfWeek.forEach(day => {
                     const dayColumn = document.createElement('div');
                     dayColumn.classList.add('day');
-                    dayColumn.innerHTML = `<h2>${day}</h2>`;
+                    dayColumn.innerHTML = `<h2>${translateDay(day)}</h2>`;
                     const daySchedule = schedule.filter(item => item.weekDay === day)
                                                 .sort((a, b) => a.timeDay.localeCompare(b.timeDay));
                     
@@ -64,12 +82,26 @@
                         const lesson = document.createElement('div');
                         lesson.classList.add('lesson');
                         lesson.innerHTML = `
-                            <p><strong>${item.timeDay}:</strong> ${item.courseTitle}, Clasa ${item.groupName}, Sala ${item.classroomName}</p>
+                            <p><strong>${item.timeDay}:</strong></p>
+                            <p>${item.courseTitle}</p>
+                            <p>Clasa ${item.groupName}</p>
+                            <p>Sala ${item.classroomName}</p>
                         `;
                         dayColumn.appendChild(lesson);
                     });
                     scheduleContainer.appendChild(dayColumn);
                 });
+            }
+
+            function translateDay(day) {
+                const days = {
+                    "Monday": "Luni",
+                    "Tuesday": "Marți",
+                    "Wednesday": "Miercuri",
+                    "Thursday": "Joi",
+                    "Friday": "Vineri"
+                };
+                return days[day];
             }
 
             function getCookie(name) {

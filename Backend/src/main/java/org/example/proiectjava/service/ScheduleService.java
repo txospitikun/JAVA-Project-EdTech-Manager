@@ -122,7 +122,11 @@ public class ScheduleService {
 
     private static Map<GraphNode, Integer> colorGraph(Graph<GraphNode, DefaultEdge> graph) {
         Map<GraphNode, Integer> nodeColors = new HashMap<>();
-        Map<Integer, Integer> dayCounts = new HashMap<>();
+        Map<String, Integer> dayCounts = new HashMap<>();
+        String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+        for (String day : days) {
+            dayCounts.put(day, 0);
+        }
 
         for (GraphNode node : graph.vertexSet()) {
             Set<Integer> usedColors = new HashSet<>();
@@ -136,19 +140,30 @@ public class ScheduleService {
                 }
             }
 
-            int color = 1;
-            while (usedColors.contains(color)) {
-                color++;
-            }
+            // Find the least loaded day
+            String leastLoadedDay = getLeastLoadedDay(dayCounts);
+            int color = getDayColor(leastLoadedDay, usedColors);
 
             nodeColors.put(node, color);
 
             // Increment count for the respective day
-            int dayIndex = (color - 1) / 6;
-            dayCounts.put(dayIndex, dayCounts.getOrDefault(dayIndex, 0) + 1);
+            dayCounts.put(leastLoadedDay, dayCounts.get(leastLoadedDay) + 1);
         }
 
         return nodeColors;
+    }
+
+    private static String getLeastLoadedDay(Map<String, Integer> dayCounts) {
+        return Collections.min(dayCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+    private static int getDayColor(String day, Set<Integer> usedColors) {
+        int dayIndex = Arrays.asList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday").indexOf(day);
+        int color = dayIndex * 6 + 1; // Start at the first slot of the day
+        while (usedColors.contains(color)) {
+            color++;
+        }
+        return color;
     }
 
     private static JSONArray createSchedule(Map<GraphNode, Integer> nodeColors) {
@@ -162,7 +177,7 @@ public class ScheduleService {
             scheduleEntry.put("Course_ID", node.getCourseId());
             scheduleEntry.put("Group_ID", node.getGroupId());
             scheduleEntry.put("Time_Slot", timeSlot);
-            scheduleEntry.put("Link_ID", node.getId());  // Add Link_ID to the schedule entry
+            scheduleEntry.put("Link_ID", node.getId());
             schedule.put(scheduleEntry);
         }
         return schedule;
@@ -173,7 +188,7 @@ public class ScheduleService {
         int timeIndex = (color - 1) % 6;
         String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
         String[] times = {
-                "8:00-10:00",
+                "08:00-10:00",
                 "10:00-12:00",
                 "12:00-14:00",
                 "14:00-16:00",
@@ -257,7 +272,7 @@ public class ScheduleService {
     private static String getNextBalancedTimeSlot(Map<String, List<Integer>> classroomAssignments, JSONObject entry, int numClassrooms, Map<String, Integer> dayLoads) {
         String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
         String[] times = {
-                "8:00-10:00",
+                "08:00-10:00",
                 "10:00-12:00",
                 "12:00-14:00",
                 "14:00-16:00",
