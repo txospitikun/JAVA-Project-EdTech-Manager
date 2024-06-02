@@ -149,6 +149,6 @@ CREATE TABLE Announcements (
 
 CREATE TABLE Classrooms (
     ID SERIAL PRIMARY KEY,
-    Classroom_Name VARCHAR NOT NULL,
+    Classroom_Name VARCHAR NOT NULL UNIQUE
 );
 ```
