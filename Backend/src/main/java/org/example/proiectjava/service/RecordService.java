@@ -10,105 +10,68 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class RecordService {
-    public static int registerProfessor(CreateProfessorRequest createProfessorRequest)
-    {
-        int registeredUserID = -1;
-        if((registeredUserID = AuthService.registerUser(createProfessorRequest.getUsername(), EncryptionService.encryptSHA256(createProfessorRequest.getPassword()), 2)) == -1)
-        {
-            return -1;
-        }
+    public static int registerProfessor(CreateProfessorRequest createProfessorRequest) {
+        int professorId = -1;
+        String callFunction = "{? = call register_professor(?, ?, ?, ?, ?)}";
 
-        String query = "INSERT INTO Professors (first_name, last_name, rank, user_id) VALUES (?, ?, ?, ?)";
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
-                PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                preparedStatement.setString(1, createProfessorRequest.getFirstName());
-                preparedStatement.setString(2, createProfessorRequest.getLastName());
-                preparedStatement.setString(3, createProfessorRequest.getRank());
-                preparedStatement.setInt(4, registeredUserID);
+                try (CallableStatement callableStatement = connection.prepareCall(callFunction)) {
+                    callableStatement.registerOutParameter(1, Types.INTEGER);
+                    callableStatement.setString(2, createProfessorRequest.getFirstName());
+                    callableStatement.setString(3, createProfessorRequest.getLastName());
+                    callableStatement.setString(4, createProfessorRequest.getRank());
+                    callableStatement.setString(5, createProfessorRequest.getUsername());
+                    callableStatement.setString(6, createProfessorRequest.getPassword());
 
-                int affectedRows = preparedStatement.executeUpdate();
-                if (affectedRows > 0) {
-                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                        if (generatedKeys.next()) {
-                            return generatedKeys.getInt(1); // Assuming the generated key is in the first column
-                        }
-                    }
+                    callableStatement.execute();
+                    professorId = callableStatement.getInt(1);
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+        }
+        return professorId;
+    }
+
+    public static int registerProfessorCourses(int professorId, List<String> courses) {
+        String callFunction = "{ ? = call register_professor_courses(?, ?::text[]) }";
+
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                try (CallableStatement callableStatement = connection.prepareCall(callFunction)) {
+                    callableStatement.registerOutParameter(1, java.sql.Types.INTEGER);
+                    Array coursesArray = connection.createArrayOf("TEXT", courses.toArray());
+
+                    callableStatement.setInt(2, professorId);
+                    callableStatement.setArray(3, coursesArray);
+
+                    callableStatement.execute();
+
+                    return callableStatement.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
+            return -1;
         }
         return -1;
     }
 
-    public static int registerProfessorCourses(int professorID, List<String> courses) {
-        if (professorID == -1) {
-            return -1;
-        }
-
-        for (String courseTitle : courses) {
-            int foundCourseID = -1;
-            String query = "SELECT ID FROM Courses WHERE course_title = ?";
-            try (Connection connection = DatabaseConfig.getConnection()) {
-                if (connection != null) {
-                    PreparedStatement preparedStatement = connection.prepareStatement(query);
-                    preparedStatement.setString(1, courseTitle);
-
-                    try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                        if (resultSet.next()) {
-                            foundCourseID = resultSet.getInt("ID");
-                            System.out.println("Found course with ID: " + foundCourseID);
-                        } else {
-                            foundCourseID = -1;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
-            }
-
-            if (foundCourseID == -1) {
-                continue;
-            }
-
-            String query2 = "INSERT INTO Didactic (id_professor, id_course) VALUES (?, ?)";
-            try (Connection connection = DatabaseConfig.getConnection()) {
-                if (connection != null) {
-                    PreparedStatement preparedStatement = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
-                    preparedStatement.setInt(1, professorID);
-                    preparedStatement.setInt(2, foundCourseID);
-
-                    int affectedRows = preparedStatement.executeUpdate();
-                    if (affectedRows > 0) {
-                        try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                            if (generatedKeys.next()) {
-                                System.out.println("Inserted Didactic record with ID: " + generatedKeys.getInt(1));
-                            }
-                        }
-                    } else {
-                        return -1;
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("An unexpected SQL exception has occurred: " + e.getMessage());
-                return -1;
-            }
-        }
-        return 1;
-    }
 
 
     public static int getCourseIdByName(String courseTitle) {
-        String query = "SELECT id FROM Courses WHERE course_title = ?";
+        String callFunction = "{? = call get_course_id_by_name(?)}";
+
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
-                preparedStatement.setString(1, courseTitle);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                if (resultSet.next()) {
-                    return resultSet.getInt("id");
+                try (CallableStatement callableStatement = connection.prepareCall(callFunction)) {
+                    callableStatement.registerOutParameter(1, java.sql.Types.INTEGER);
+                    callableStatement.setString(2, courseTitle);
+
+                    callableStatement.execute();
+
+                    return callableStatement.getInt(1);
                 }
             }
         } catch (Exception e) {
@@ -154,42 +117,40 @@ public class RecordService {
     }
     public static JSONArray getAllProfessors() {
         JSONArray professorsArray = new JSONArray();
-        String query = "SELECT p.id, p.first_name, p.last_name, p.rank, u.id AS user_id, u.username, " +
-                "ARRAY_AGG(c.course_title) AS courses " +
-                "FROM professors p " +
-                "JOIN users u ON p.user_id = u.id " +
-                "LEFT JOIN didactic d ON p.id = d.id_professor " +
-                "LEFT JOIN courses c ON d.id_course = c.id " +
-                "GROUP BY p.id, p.first_name, p.last_name, p.rank, u.id, u.username";
+        String callFunction = "{call get_all_professors()}";
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            if (connection != null) {
+                try (CallableStatement callableStatement = connection.prepareCall(callFunction)) {
+                    try (ResultSet rs = callableStatement.executeQuery()) {
+                        while (rs.next()) {
+                            JSONObject professor = new JSONObject();
+                            professor.put("id", rs.getInt("id"));
+                            professor.put("first_name", rs.getString("first_name"));
+                            professor.put("last_name", rs.getString("last_name"));
+                            professor.put("rank", rs.getString("rank"));
+                            professor.put("user_id", rs.getInt("user_id"));
+                            professor.put("username", rs.getString("username"));
 
-            while (rs.next()) {
-                JSONObject professor = new JSONObject();
-                professor.put("id", rs.getInt("id"));
-                professor.put("first_name", rs.getString("first_name"));
-                professor.put("last_name", rs.getString("last_name"));
-                professor.put("rank", rs.getString("rank"));
-                professor.put("user_id", rs.getInt("user_id"));
-                professor.put("username", rs.getString("username"));
+                            Array coursesArray = rs.getArray("courses");
+                            if (coursesArray != null) {
+                                String[] courses = (String[]) coursesArray.getArray();
+                                professor.put("courses", courses);
+                            } else {
+                                professor.put("courses", new String[0]);
+                            }
 
-                Array coursesArray = rs.getArray("courses");
-                if (coursesArray != null) {
-                    String[] courses = (String[]) coursesArray.getArray();
-                    professor.put("courses", courses);
-                } else {
-                    professor.put("courses", new String[0]);
+                            professorsArray.put(professor);
+                        }
+                    }
                 }
-
-                professorsArray.put(professor);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return professorsArray;
     }
+
 
 
 

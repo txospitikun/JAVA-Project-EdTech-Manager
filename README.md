@@ -156,3 +156,121 @@ UNIQUE (week_day, time_day, link_id, classroom_id)
 );
 
 ```
+
+#PL/SQL script (munca de chinez... )
+```
+CREATE OR REPLACE FUNCTION register_user(
+    p_username VARCHAR,
+    p_password VARCHAR,
+    p_privilege INT
+) RETURNS INT AS $$
+DECLARE
+    v_user_id INT;
+BEGIN
+    -- Insert the user into the users table
+    INSERT INTO users (username, password, privilege)
+    VALUES (p_username, encode(digest(p_password, 'sha256'), 'hex'), p_privilege)
+    RETURNING id INTO v_user_id;
+    
+    RETURN v_user_id;
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN -1;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION register_professor(
+    p_first_name VARCHAR,
+    p_last_name VARCHAR,
+    p_rank VARCHAR,
+    p_username VARCHAR,
+    p_password VARCHAR
+) RETURNS INT AS $$
+DECLARE
+    v_user_id INT;
+    v_professor_id INT;
+BEGIN
+    -- Register the user
+    v_user_id := register_user(p_username, p_password, 2);
+    
+    IF v_user_id = -1 THEN
+        RETURN -1;
+    END IF;
+
+    -- Insert the professor into the professors table
+    INSERT INTO Professors (first_name, last_name, rank, user_id)
+    VALUES (p_first_name, p_last_name, p_rank, v_user_id)
+    RETURNING id INTO v_professor_id;
+    
+    RETURN v_professor_id;
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN -1;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION register_professor_courses(
+    p_professor_id INT,
+    p_courses TEXT[]
+) RETURNS INT AS $$
+DECLARE
+    v_course_title TEXT;
+    v_course_id INT;
+BEGIN
+    FOREACH v_course_title IN ARRAY p_courses LOOP
+        -- Find the course ID
+        SELECT id INTO v_course_id
+        FROM courses
+        WHERE course_title = v_course_title;
+
+        -- If the course is found, insert into Didactic table
+        IF v_course_id IS NOT NULL THEN
+            INSERT INTO Didactic (id_professor, id_course)
+            VALUES (p_professor_id, v_course_id);
+        END IF;
+    END LOOP;
+
+    RETURN 1;
+
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_course_id_by_name(p_course_title VARCHAR)
+RETURNS INT AS $$
+DECLARE
+    v_course_id INT;
+BEGIN
+    SELECT id INTO v_course_id
+    FROM Courses
+    WHERE course_title = p_course_title;
+
+    RETURN v_course_id;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN -1;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP FUNCTION get_all_professors();
+CREATE OR REPLACE FUNCTION get_all_professors()
+RETURNS TABLE (
+    id INT,
+    first_name VARCHAR,
+    last_name VARCHAR,
+    rank VARCHAR,
+    user_id INT,
+    username VARCHAR,
+    courses VARCHAR[]
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT p.id, p.first_name, p.last_name, p.rank, u.id AS user_id, u.username,
+           ARRAY_AGG(c.course_title) AS courses
+    FROM professors p
+    JOIN users u ON p.user_id = u.id
+    LEFT JOIN didactic d ON p.id = d.id_professor
+    LEFT JOIN courses c ON d.id_course = c.id
+    GROUP BY p.id, p.first_name, p.last_name, p.rank, u.id, u.username;
+END;
+$$ LANGUAGE plpgsql;
+```
