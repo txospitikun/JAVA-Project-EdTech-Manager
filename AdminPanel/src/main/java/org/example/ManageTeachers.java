@@ -103,7 +103,7 @@ public class ManageTeachers extends JFrame {
         gbc.fill = GridBagConstraints.BOTH;
         formPanel.add(coursesScrollPane, gbc);
 
-        JButton addButton = new JButton("Creează/Editează Profesor");
+        JButton addButton = new JButton("Creează Profesor");
         gbc.gridx = 1;
         gbc.gridy = 7;
         gbc.gridheight = 1;
@@ -137,16 +137,14 @@ public class ManageTeachers extends JFrame {
 
         panel.add(formPanel, BorderLayout.NORTH);
 
-        // Add columns for professorID and userID
         String[] columnNames = {"ProfesorID", "UserID", "Prenume", "Nume", "Rang", "Nume utilizator", "Materii"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column > 2; // Make all columns except ID columns editable
+                return column > 2;
             }
         };
         JTable table = new JTable(tableModel);
-        // Hide the first two columns
         table.removeColumn(table.getColumnModel().getColumn(0));
         table.removeColumn(table.getColumnModel().getColumn(0));
 
@@ -245,11 +243,11 @@ public class ManageTeachers extends JFrame {
                 JSONObject jsonResponse = new JSONObject(response.toString());
                 JSONArray professorsArray = jsonResponse.getJSONArray("professors");
 
-                tableModel.setRowCount(0); // Clear existing rows
+                tableModel.setRowCount(0);
                 for (int i = 0; i < professorsArray.length(); i++) {
                     JSONObject professor = professorsArray.getJSONObject(i);
                     int professorID = professor.getInt("id");
-                    int userID = professor.getInt("user_id"); // Ensure this key is present
+                    int userID = professor.getInt("user_id");
                     String firstName = professor.getString("first_name");
                     String lastName = professor.getString("last_name");
                     String rank = professor.getString("rank");
@@ -330,7 +328,7 @@ public class ManageTeachers extends JFrame {
 
             JSONObject jsonInput = new JSONObject();
             jsonInput.put("jwt", jwt);
-            jsonInput.put("professorID", tableModel.getValueAt(row, 0)); // Use professorID
+            jsonInput.put("professorID", tableModel.getValueAt(row, 0));
             jsonInput.put("firstName", tableModel.getValueAt(row, 2).toString());
 
             con.setDoOutput(true);
@@ -363,7 +361,7 @@ public class ManageTeachers extends JFrame {
 
             JSONObject jsonInput = new JSONObject();
             jsonInput.put("jwt", jwt);
-            jsonInput.put("professorID", tableModel.getValueAt(row, 0)); // Use professorID
+            jsonInput.put("professorID", tableModel.getValueAt(row, 0));
             jsonInput.put("lastName", tableModel.getValueAt(row, 3).toString());
 
             con.setDoOutput(true);
@@ -396,7 +394,7 @@ public class ManageTeachers extends JFrame {
 
             JSONObject jsonInput = new JSONObject();
             jsonInput.put("jwt", jwt);
-            jsonInput.put("professorID", tableModel.getValueAt(row, 0)); // Use professorID
+            jsonInput.put("professorID", tableModel.getValueAt(row, 0));
             jsonInput.put("rank", tableModel.getValueAt(row, 4).toString());
 
             con.setDoOutput(true);
@@ -429,7 +427,7 @@ public class ManageTeachers extends JFrame {
 
             JSONObject jsonInput = new JSONObject();
             jsonInput.put("jwt", jwt);
-            jsonInput.put("userID", tableModel.getValueAt(row, 1)); // Use userID
+            jsonInput.put("userID", tableModel.getValueAt(row, 1));
             jsonInput.put("username", tableModel.getValueAt(row, 5).toString());
 
             con.setDoOutput(true);
@@ -462,7 +460,7 @@ public class ManageTeachers extends JFrame {
 
             JSONObject jsonInput = new JSONObject();
             jsonInput.put("jwt", jwt);
-            jsonInput.put("professorID", tableModel.getValueAt(row, 0)); // Use professorID
+            jsonInput.put("professorID", tableModel.getValueAt(row, 0));
             String coursesString = tableModel.getValueAt(row, 6).toString();
             String[] courses = coursesString.split(",\\s*");
             jsonInput.put("courses", new JSONArray(courses));

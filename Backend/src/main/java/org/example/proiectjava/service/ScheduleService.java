@@ -12,8 +12,8 @@ import java.util.*;
 
 public class ScheduleService {
 
-    private static int NUM_CLASSROOMS; // Number of classrooms available
-    private static final int NUM_TIME_SLOTS = 30; // 6 intervals per day * 5 days
+    private static int NUM_CLASSROOMS;
+    private static final int NUM_TIME_SLOTS = 30;// nr total de culori= 5 zile * 6 intervale
 
     static {
         try (Connection connection = DatabaseConfig.getConnection();

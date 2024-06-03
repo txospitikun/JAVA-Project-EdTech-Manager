@@ -127,7 +127,7 @@ public class ManageSchedule extends JFrame {
                 JSONObject jsonResponse = new JSONObject(response.toString());
                 JSONArray scheduleArray = jsonResponse.getJSONArray("schedule");
 
-                tableModel.setRowCount(0); // Clear existing rows
+                tableModel.setRowCount(0);
                 for (int i = 0; i < scheduleArray.length(); i++) {
                     JSONObject entry = scheduleArray.getJSONObject(i);
                     String weekDay = entry.getString("week_day");

@@ -78,10 +78,9 @@ public class LoginFrame extends JFrame {
             try {
                 String jwt = login(username, password);
                 if (jwt != null) {
-                    // Save JWT to local storage or any secure storage
                     JOptionPane.showMessageDialog(null, "Login successful!");
-                    new AdminHome(jwt); // Pass the JWT to the AdminHome frame
-                    dispose(); // Close the login frame
+                    new AdminHome(jwt);
+                    dispose();
                 } else {
                     errorLabel.setText("Invalid credentials. Please try again.");
                 }

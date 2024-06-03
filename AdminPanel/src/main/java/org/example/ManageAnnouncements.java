@@ -284,7 +284,7 @@ public class ManageAnnouncements extends JFrame {
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 statusLabel.setForeground(Color.GREEN);
                 statusLabel.setText("Anunț actualizat cu succes!");
-                loadAnnouncements(); // Reîncărcăm anunțurile pentru a reflecta modificările
+                loadAnnouncements();
             } else if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 statusLabel.setForeground(Color.RED);
                 statusLabel.setText("JWT invalid!");
@@ -310,7 +310,7 @@ public class ManageAnnouncements extends JFrame {
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 statusLabel.setForeground(Color.GREEN);
                 statusLabel.setText("Anunț șters cu succes!");
-                loadAnnouncements(); // Reîncărcăm anunțurile pentru a reflecta modificările
+                loadAnnouncements();
             } else if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 statusLabel.setForeground(Color.RED);
                 statusLabel.setText("JWT invalid!");

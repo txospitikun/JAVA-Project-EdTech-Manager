@@ -6,7 +6,6 @@ public class SaveGroupProfessorLinkRequest {
         private int courseId;
         private int professorId;
 
-        // Getters and setters
         public String getJwt() {
             return jwt;
         }

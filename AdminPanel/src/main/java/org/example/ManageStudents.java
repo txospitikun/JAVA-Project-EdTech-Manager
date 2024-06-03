@@ -90,7 +90,7 @@ public class ManageStudents extends JFrame {
         gbc.fill = GridBagConstraints.BOTH;
         formPanel.add(groupScrollPane, gbc);
 
-        JButton addButton = new JButton("Creează/Editează Elev");
+        JButton addButton = new JButton("Creează Elev");
         gbc.gridx = 1;
         gbc.gridy = 6;
         gbc.gridheight = 1;
@@ -128,7 +128,7 @@ public class ManageStudents extends JFrame {
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column > 3; // permite editarea doar a coloanelor relevante
+                return column > 3;
             }
         };
         JTable table = new JTable(tableModel);
@@ -269,7 +269,7 @@ public class ManageStudents extends JFrame {
                 JSONObject jsonResponse = new JSONObject(response.toString());
                 JSONArray studentsArray = jsonResponse.getJSONArray("students");
 
-                tableModel.setRowCount(0); // Clear existing rows
+                tableModel.setRowCount(0);
                 for (int i = 0; i < studentsArray.length(); i++) {
                     JSONObject student = studentsArray.getJSONObject(i);
                     int studentId = student.getInt("studentId");

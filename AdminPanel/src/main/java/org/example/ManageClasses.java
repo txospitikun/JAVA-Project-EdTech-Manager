@@ -22,7 +22,6 @@ public class ManageClasses extends JFrame {
     private JList<String> groupList;
     private JLabel statusLabel;
     private Map<Integer, JComboBox<ProfessorItem>> courseProfessorMap = new HashMap<>();
-    private Map<Integer, Integer> courseIdMap = new HashMap<>(); // map to store courseId with index
 
     public ManageClasses(String jwt) {
         this.jwt = jwt;

@@ -98,7 +98,7 @@ public class ManageCourses extends JFrame {
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column > 0; // permite editarea doar a coloanelor relevante
+                return column > 0;
             }
         };
         JTable table = new JTable(tableModel);
@@ -205,7 +205,7 @@ public class ManageCourses extends JFrame {
                 JSONObject jsonResponse = new JSONObject(response.toString());
                 JSONArray coursesArray = jsonResponse.getJSONArray("courses");
 
-                tableModel.setRowCount(0); // Clear existing rows
+                tableModel.setRowCount(0);
                 for (int i = 0; i < coursesArray.length(); i++) {
                     JSONObject course = coursesArray.getJSONObject(i);
                     int courseId = course.getInt("id");
