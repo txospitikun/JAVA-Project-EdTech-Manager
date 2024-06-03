@@ -152,7 +152,7 @@ CREATE TABLE Schedule (
     CLASSROOM_ID INTEGER NOT NULL,
 FOREIGN KEY(LINK_ID) REFERENCES GroupProfessorLink(id),
 FOREIGN KEY(CLASSROOM_ID) REFERENCES Classrooms(ID),
-UNIQUE (week_day, time_day, link_id, classroom_id)
+UNIQUE (week_day, time_day, classroom_id)
 );
 
 ```
