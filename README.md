@@ -84,7 +84,7 @@ CREATE TABLE Courses (
     COURSE_TITLE VARCHAR NOT NULL UNIQUE,
     YEAR SMALLINT CHECK (year >= 0 AND year <= 9),
     SEMESTER SMALLINT CHECK (semester >= 0 AND semester <= 2),
-    CREDITS SMALLINT CHECK (credits >= 0 AND credits <= 10),
+    CREDITS SMALLINT CHECK (credits >= 0 AND credits <= 10)
 );
 
 CREATE TABLE Professors (
