@@ -31,7 +31,7 @@ public class RecordService {
                 if (affectedRows > 0) {
                     try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
-                            return generatedKeys.getInt(1); // Assuming the generated key is in the first column
+                            return generatedKeys.getInt(1);
                         }
                     }
                 }
@@ -265,7 +265,6 @@ public class RecordService {
         int professorId = request.getProfessorID();
         List<String> courses = request.getCourses();
 
-        // Ștergeți cursurile existente
         String deleteQuery = "DELETE FROM Didactic WHERE id_professor = ?";
         try (Connection connection = DatabaseConfig.getConnection()) {
             if (connection != null) {
@@ -278,7 +277,6 @@ public class RecordService {
             return false;
         }
 
-        // Adăugați cursurile noi
         for (String courseTitle : courses) {
             int foundCourseID = -1;
             String query = "SELECT ID FROM Courses WHERE course_title = ?";
@@ -387,7 +385,7 @@ public class RecordService {
 
             while (rs.next()) {
                 JSONObject course = new JSONObject();
-                course.put("id", rs.getInt("ID")); // Adăugăm ID-ul în răspuns
+                course.put("id", rs.getInt("ID"));
                 course.put("courseTitle", rs.getString("COURSE_TITLE"));
                 course.put("year", rs.getInt("YEAR"));
                 course.put("semester", rs.getInt("SEMESTER"));
@@ -414,7 +412,7 @@ public class RecordService {
                 if (affectedRows > 0) {
                     try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
-                            return generatedKeys.getInt(1); // Assuming the generated key is in the first column
+                            return generatedKeys.getInt(1);
                         }
                     }
                 }
@@ -766,7 +764,7 @@ public class RecordService {
                 if (affectedRows > 0) {
                     try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
-                            return generatedKeys.getInt(1); // Assuming the generated key is in the first column
+                            return generatedKeys.getInt(1);
                         }
                     }
                 }
