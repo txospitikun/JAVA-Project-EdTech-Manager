@@ -1,4 +1,4 @@
-# Advanced Programming Project - 
+# Advanced Programming Project - EdTech for Students/Faculty
 **Year 2 - Semester 2 - UAIC FII**
 <a href="https://edu.info.uaic.ro/programare-avansata/">Course Description</a>
 ### Description:
