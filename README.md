@@ -1,4 +1,20 @@
-# REST API CALLS
+# Advanced Programming Project - 
+**Year 2 - Semester 2 - UAIC FII**
+<a href="https://edu.info.uaic.ro/programare-avansata/">Course Description</a>
+### Description:
+The project consists of an EdTech application that make it easier for students, from within a specific faculty, to check their degrees, see announcements and link with their courses and professors.
+
+The most intriguing part of this project was the generation of the schedule using a greedy graph-coloring algorithm with basic constraints.
+
+It was developed within two weeks by me and a colleague @cainelejoe. The teamwork was ideal.
+
+### Conclusion:
+The grade obtained for this project was maximum.
+
+
+
+
+## Below are some examples of REST API calls and SQL tables:
 ```
 /api/create_professor
 Payload:
@@ -156,3 +172,7 @@ UNIQUE (week_day, time_day, classroom_id)
 );
 
 ```
+
+
+
+
